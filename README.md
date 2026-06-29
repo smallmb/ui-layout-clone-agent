@@ -31,8 +31,29 @@ The `/examples/linear-clone` directory demonstrates the absolute power of this A
 
 ## 🛠 How to Use
 
-Load the `ui-layout-clone.md` into your AI IDE / Agent framework and trigger it with a prompt like:
-> "Start ui-layout-clone v7.0.0. Sniff https://linear.app, use Strategy C, and intercept its network to infer the API schema for the features page."
+### Quick Start (10 秒上手)
+
+1. **安装到你的 AI IDE**：将 `agent/ui-layout-clone.md` 拖入 Cursor / Cline / mimocode 的 Agent 配置目录
+2. **输入提示词**：
+
+> "克隆 https://linear.app 的首页，用纯 HTML + CSS 实现，使用 Strategy A（完全克隆）"
+
+3. **等待 Agent 自动执行**：视觉骨架分析 → 语义 DOM 提取 → 设计令牌反推 → 代码生成
+4. **查看输出**：`.layout-clone/` 目录下会生成 `reference.md` + `tokens.json` + 完整页面代码
+
+### 进阶用法
+
+**嗅探 API 数据模型**：
+> "Sniff https://linear.app, intercept its XHR requests, and extract the API data models for the features page."
+
+**导出 Figma 设计令牌**：
+> "Extract design tokens from https://linear.app and export as W3C tokens.json for Figma Token Studio."
+
+**多页面站点克隆**：
+> "Clone the entire https://linear.app site — all 6 pages with working navigation links between them."
+
+**多代理协作模式**：
+> "Clone https://linear.app using Multi-Agent Swarm. Main Agent handles layout, delegate 3D scenes to ThreeJS_Agent and interactions to Logic_Agent."
 
 ## 🏗 Architecture Overview
 
