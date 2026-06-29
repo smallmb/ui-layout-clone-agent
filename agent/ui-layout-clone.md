@@ -1,0 +1,1810 @@
+---
+name: ui-layout-clone
+version: 7.0.0
+description: |
+  全栈产品反向工程引擎：从本地源码（AST/Grep 静态分析）或线上已编译站点（无头浏览器 + 视觉模型 + DOM 嗅探 + 网络拦截）提取
+  布局、设计系统、交互行为、动画效果、状态管理、动态渲染模式、数据流与 API Schema、
+  3D 场景（Three.js/WebGL）、Canvas 2D 绘图、高级动画库（Lottie/Framer Motion/GSAP/React Spring）、
+  拖拽交互、音频可视化、手势系统和 Electron 桌面端功能（窗口控制、IPC 通信、多窗口、系统托盘），
+  适配用户技术栈生成完整的界面代码。
+  支持 React/Vue/Svelte/HTML + Three.js + Canvas + Electron 等项目，
+  覆盖 CSS 布局 + JS 交互 + 动画系统 + 状态管理 + 3D/2D 渲染 + 音频可视化 + 桌面端的完整迁移。
+  v7.0.0 新增：数据驱动嗅探（NetworkInterception 拦截 XHR/Fetch 提取 API Schema）、
+  W3C Design Tokens 标准导出（tokens.json）、多智能体协同架构（DelegateTask 分工生成）、
+  多页面站点地图提取与导航互通协议。
+user-invocable: true
+allowed-tools:
+  - Bash
+  - Read
+  - Write
+  - Edit
+  - Glob
+  - Grep
+  - AskUserQuestion
+  - WebFetch
+  - Agent
+  - Playwright
+  - ExecuteScript
+  - VisionModel
+  - NetworkIntercept
+  - DelegateTask
+triggers:
+  - 克隆布局
+  - 复制界面
+  - 参考设计
+  - 分析布局
+  - layout clone
+  - ui clone
+  - 参考项目布局
+  - 布局克隆
+  - 界面克隆
+  - 克隆交互
+  - 复制动效
+  - 线上站点提取
+  - 分析网站
+  - 克隆网站
+  - 嗅探设计系统
+  - 克隆站点
+  - 克隆整站
+  - 多页面克隆
+  - site clone
+---
+
+# UI Layout Clone
+
+从参考项目提取完整的界面行为（布局 + 交互 + 动画 + 状态），适配用户技术栈生成高质量代码。
+
+## 执行约束
+
+- 参考项目的分析结果必须写入 `.layout-clone/reference.md`，作为 Phase 3 的输入
+- 目标项目分析结果写入 `.layout-clone/target.md`
+- 每次生成前必须先读取这两个文件，确保一致性
+- 生成代码时必须使用目标项目的现有依赖，不引入新包
+- 交互/动画/状态代码必须使用目标项目现有方案（除非目标项目没有且用户确认）
+- 生成的 JS 代码必须遵循目标项目的代码风格
+
+## 输入类型嗅探
+
+**在执行任何 Phase 之前，必须先判断用户输入的参考项目来源类型。**
+
+| 输入特征 | 类型判定 | 走向 |
+|----------|----------|------|
+| 本地路径（绝对路径或相对路径）且指向目录 | 本地源码项目 | → Phase 1（静态分析流程） |
+| 本地路径指向 `.html`、`.vue`、`.tsx` 等源码文件 | 本地源码文件 | → Phase 1（静态分析流程） |
+| `http://` 或 `https://` 开头的 URL | 线上站点 | → Dynamic Extraction Phase（动态嗅探流程） |
+| 以 `localhost` 或 `127.0.0.1` 开头的 URL | 本地开发服务器 | → Dynamic Extraction Phase（动态嗅探流程） |
+| 无法判定 | 询问用户 | → AskUserQuestion 确认来源类型 |
+
+**判定为本地路径时**：执行 Phase 1 全部静态分析逻辑（AST/Grep 模式），从源码中提取布局、设计系统、交互行为等完整信息。
+
+**判定为线上 URL 时**：跳过 Phase 1 全部逻辑，进入下方全新的「动态视觉与 DOM 嗅探工作流」。提取结果同样写入 `.layout-clone/reference.md`，后续与 Phase 2、Phase 3 无缝对接。
+
+---
+
+## Dynamic Extraction Phase: 线上 URL 动态嗅探工作流
+
+**输入**: 线上站点 URL（已编译的生产环境页面）
+
+**目标**: 在无源码的情况下，通过无头浏览器、视觉模型和脚本注入，反推出站点的完整设计系统、布局骨架、交互状态和微交互动效参数。
+
+### Step A: 视觉骨架分析
+
+**目的**: 获取页面的宏观视觉层级和组件分布，作为后续精确提取的"地图"。
+
+```yaml
+操作:
+  1. 使用 Playwright 打开目标 URL，等待 networkidle
+  2. 设置视口为 1440×900（桌面端基准），执行全屏截图
+  3. 设置视口为 375×812（移动端基准），执行全屏截图
+  4. 将两张截图送入 VisionModel，要求分析并输出以下结构
+```
+
+**VisionModel 分析指令模板**:
+
+```
+你是一个资深前端架构师。请分析这张网页截图，输出以下信息（JSON 格式）：
+
+1. "layout_skeleton": 页面的宏观布局骨架，包括：
+   - header（位置、高度、是否固定）
+   - sidebar（位置、宽度、是否可折叠）
+   - main_content（主要区域占比）
+   - footer（是否存在、高度）
+   - 任何特殊区域（hero section、cards grid、feature rows 等）
+
+2. "component_inventory": 视觉可见的组件类型和数量估计，
+   包括按钮、卡片、表单、导航项、图标、图片、文字区块等
+
+3. "visual_hierarchy": 视觉层级分析，
+   包括主标题、副标题、正文、辅助文字的字号大小关系
+
+4. "color_zones": 不同区域的主色调倾向
+```
+
+**输出结构**:
+
+```yaml
+visual_skeleton:
+  desktop:
+    layout_type: "header + sidebar + main" | "header + main" | "hero + cards grid" | ...
+    regions:
+      - name: "header"
+        position: "fixed" | "sticky" | "static"
+        height: "60px"  # 估算值
+        contains: ["logo", "nav", "search", "user-avatar"]
+      - name: "sidebar"
+        width: "240px"  # 估算值
+        contains: ["nav-items", "user-profile", "settings"]
+      - name: "main"
+        contains: ["content-area", "cards-grid", "pagination"]
+  mobile:
+    layout_type: "stacked" | "hamburger-menu" | ...
+    differences_from_desktop: [...]
+component_inventory:
+  buttons: 12
+  cards: 8
+  form_inputs: 3
+  nav_items: 6
+  icons: 24
+  images: 15
+```
+
+### Step A.5: 站点地图提取 (Site Map Extraction)
+
+**目的**: 发现目标站点的所有内部页面 URL，构建页面图谱和导航层级关系，为多页面克隆提供路由蓝图。
+
+**使用场景**: 当目标站点是多页面应用（MPA）或用户要求克隆整个网站时执行。单页面可跳过此步骤。
+
+**执行脚本**:
+
+```javascript
+// ExecuteScript: 提取站点地图（注入到浏览器）
+(async () => {
+  // 1. 收集页面上所有内部链接
+  const links = Array.from(document.querySelectorAll('a[href]'))
+    .map(a => ({
+      href: a.href,
+      text: (a.textContent || '').trim().slice(0, 80),
+      isInternal: a.href.startsWith(window.location.origin),
+      isAnchor: a.href.includes('#'),
+      isJs: a.href.startsWith('javascript:')
+    }))
+    .filter(l => l.isInternal && !l.isAnchor && !l.isJs);
+
+  // 2. 去重（按 href）
+  const unique = [...new Map(links.map(l => [l.href, l])).values()];
+
+  // 3. 分析导航结构
+  const nav = document.querySelector('nav, [role="navigation"], header');
+  const navLinks = nav ? Array.from(nav.querySelectorAll('a[href]'))
+    .map(a => ({ label: a.textContent.trim(), href: a.href }))
+    .filter(l => l.href.startsWith(window.location.origin)) : [];
+
+  // 4. 分析页脚链接
+  const footer = document.querySelector('footer, [role="contentinfo"]');
+  const footerLinks = footer ? Array.from(footer.querySelectorAll('a[href]'))
+    .map(a => ({ label: a.textContent.trim(), href: a.href }))
+    .filter(l => l.href.startsWith(window.location.origin)) : [];
+
+  // 5. 按路径层级分组
+  const pages = unique.map(l => {
+    const url = new URL(l.href);
+    const segments = url.pathname.split('/').filter(Boolean);
+    return {
+      path: url.pathname,
+      title: l.text,
+      depth: segments.length,
+      segments
+    };
+  }).sort((a, b) => a.depth - b.depth || a.path.localeCompare(b.path));
+
+  return JSON.stringify({
+    baseUrl: window.location.origin,
+    totalPages: pages.length,
+    pages,
+    navigation: {
+      primary: navLinks.map(l => ({
+        label: l.label,
+        path: new URL(l.href).pathname
+      })),
+      footer: footerLinks.map(l => ({
+        label: l.label,
+        path: new URL(l.href).pathname
+      }))
+    }
+  }, null, 2);
+})()
+```
+
+**输出结构** (写入 `.layout-clone/reference.md` 的 site_structure 字段):
+
+```yaml
+site_structure:
+  baseUrl: "https://linear.app"
+  totalPages: 6
+  pages:
+    - path: "/"
+      title: "Linear"
+      depth: 0
+    - path: "/features"
+      title: "Features"
+      depth: 1
+    - path: "/pricing"
+      title: "Pricing"
+      depth: 1
+    - path: "/changelog"
+      title: "Changelog"
+      depth: 1
+    - path: "/blog"
+      title: "Blog"
+      depth: 1
+    - path: "/login"
+      title: "Log in"
+      depth: 1
+  navigation:
+    primary:
+      - label: "Features"
+        path: "/features"
+      - label: "Pricing"
+        path: "/pricing"
+      - label: "Changelog"
+        path: "/changelog"
+      - label: "Blog"
+        path: "/blog"
+    footer:
+      - label: "Features"
+        path: "/features"
+      - label: "Pricing"
+        path: "/pricing"
+```
+
+### Step A.5: 站点地图提取 (Site Map Extraction)
+
+**目的**: 发现目标站点的所有内部页面 URL，构建页面图谱和导航层级关系，为多页面生成提供完整的路由信息。
+
+**执行脚本**:
+
+```javascript
+// ExecuteScript: 提取当前页面所有内部链接，构建站点地图
+(() => {
+  const links = Array.from(document.querySelectorAll('a[href]'));
+  const base = window.location.origin;
+  const internal = links
+    .map(a => ({ href: a.href, text: a.textContent.trim().slice(0, 50) }))
+    .filter(l => l.href.startsWith(base))
+    .filter(l => !l.href.includes('#') && !l.href.includes('javascript:'))
+    .filter(l => !l.href.includes('/api/') && !l.href.includes('/cdn/'));
+  const unique = [...new Map(internal.map(l => [l.href, l])).values()];
+  return JSON.stringify(unique, null, 2);
+})()
+```
+
+**输出结构** (写入 `.layout-clone/reference.md` 的 site_map 字段):
+
+```yaml
+site_map:
+  pages:
+    - url: "/"
+      title: "首页"
+      nav_active: null
+    - url: "/features"
+      title: "Features"
+      nav_active: "Features"
+    - url: "/pricing"
+      title: "Pricing"
+      nav_active: "Pricing"
+    - url: "/changelog"
+      title: "Changelog"
+      nav_active: "Changelog"
+    - url: "/blog"
+      title: "Blog"
+      nav_active: "Blog"
+  navigation:
+    primary:
+      position: "header"
+      links:
+        - label: "Features"
+          url: "/features"
+        - label: "Pricing"
+          url: "/pricing"
+        - label: "Changelog"
+          url: "/changelog"
+        - label: "Blog"
+          url: "/blog"
+    footer:
+      position: "footer"
+      columns:
+        - title: "Product"
+          links:
+            - label: "Features"
+              url: "/features"
+            - label: "Pricing"
+              url: "/pricing"
+  route_convention:
+    method: "file-based"  # 或 "config-based"
+    naming: "lowercase-kebab"
+    extension: ".html"
+```
+
+### Step B: 降噪与语义结构提取
+
+**目的**: 不抓取原始 DOM（太嘈杂），而是通过脚本注入提取带语义的结构树，转换为轻量级 JSON/Markdown。
+
+**禁止行为**: 不要直接 `document.documentElement.outerHTML` 抓取全部 DOM。原始 DOM 包含大量无意义的 wrapper div、内联样式、webpack hash class names，直接使用会产生巨大的噪音。
+
+**执行脚本**:
+
+```javascript
+// ExecuteScript: 提取语义化 DOM 结构（注入到浏览器）
+(() => {
+  // 定义需要提取的语义化标签和角色
+  const SEMANTIC_TAGS = new Set([
+    'header', 'nav', 'main', 'aside', 'footer', 'section', 'article',
+    'form', 'button', 'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'ul', 'ol', 'li', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'input', 'textarea', 'select', 'img', 'video', 'canvas', 'svg'
+  ]);
+
+  const ARIA_ROLES = new Set([
+    'navigation', 'banner', 'main', 'complementary', 'contentinfo',
+    'button', 'link', 'dialog', 'menu', 'menuitem', 'tab', 'tabpanel',
+    'search', 'form', 'list', 'listitem', 'heading', 'img', 'figure'
+  ]);
+
+  function extractNode(el, depth = 0) {
+    if (depth > 8) return null; // 限制深度，防止无限递归
+    if (el.nodeType !== 1) return null; // 只处理元素节点
+
+    const tag = el.tagName.toLowerCase();
+    const role = el.getAttribute('role');
+    const ariaLabel = el.getAttribute('aria-label');
+    const className = el.className && typeof el.className === 'string'
+      ? el.className.split(' ').slice(0, 5).join(' ')  // 只保留前5个class
+      : '';
+
+    // 判断是否为语义化节点
+    const isSemantic = SEMANTIC_TAGS.has(tag) || (role && ARIA_ROLES.has(role));
+    if (!isSemantic && depth > 2) return null; // 非语义节点在深层被过滤
+
+    const node = {
+      tag,
+      role: role || undefined,
+      class: className || undefined,
+      ariaLabel: ariaLabel || undefined,
+      text: undefined,
+      children: []
+    };
+
+    // 提取直接文本内容（不含子元素的文本）
+    const directText = Array.from(el.childNodes)
+      .filter(n => n.nodeType === 3)
+      .map(n => n.textContent.trim())
+      .join('')
+      .slice(0, 100); // 截断过长文本
+    if (directText) node.text = directText;
+
+    // 递归提取子节点
+    for (const child of el.children) {
+      const childNode = extractNode(child, depth + 1);
+      if (childNode) node.children.push(childNode);
+    }
+
+    // 清理空 children
+    if (node.children.length === 0) delete node.children;
+
+    return node;
+  }
+
+  const body = document.body;
+  const tree = extractNode(body);
+  return JSON.stringify(tree, null, 2);
+})()
+```
+
+**输出结构** (写入 `.layout-clone/reference.md` 的 semantic_tree 字段):
+
+```json
+{
+  "tag": "body",
+  "children": [
+    {
+      "tag": "header",
+      "role": "banner",
+      "class": "site-header sticky top-0 z-50",
+      "children": [
+        { "tag": "nav", "role": "navigation", "ariaLabel": "Main navigation", "children": [...] },
+        { "tag": "div", "class": "search-bar", "children": [...] }
+      ]
+    },
+    {
+      "tag": "main",
+      "children": [
+        { "tag": "section", "class": "hero", "children": [...] },
+        { "tag": "section", "class": "features-grid", "children": [...] }
+      ]
+    }
+  ]
+}
+```
+
+### Step C: 标准设计资产导出 (W3C Design Tokens)
+
+**目的**: 遍历核心节点，提取浏览器实际计算后的样式值，生成符合 **W3C Design Tokens Format** 的 `tokens.json` 文件。该文件可直接导入 Figma Token Studio 插件或用于 CI/CD 设计同步。
+
+**执行脚本**:
+
+```javascript
+// ExecuteScript: 提取核心节点的 computed style 并生成 W3C Design Tokens
+(() => {
+  const selectors = [
+    'header', 'nav', 'main', 'aside', 'footer',
+    'section', 'article',
+    'h1', 'h2', 'h3', 'h4',
+    'button', 'a',
+    '[class*="card"]', '[class*="Card"]',
+    '[class*="modal"]', '[class*="Modal"]',
+    '[class*="sidebar"]', '[class*="Sidebar"]'
+  ];
+
+  const colorSet = new Set();
+  const fontSet = new Set();
+  const sizeSet = new Set();
+  const spacingSet = new Set();
+  const radiusSet = new Set();
+  const shadowSet = new Set();
+
+  for (const sel of selectors) {
+    const elements = document.querySelectorAll(sel);
+    for (const el of Array.from(elements).slice(0, 5)) {
+      const cs = window.getComputedStyle(el);
+      if (cs.color && cs.color !== 'rgb(0, 0, 0)') colorSet.add(cs.color);
+      if (cs.backgroundColor && cs.backgroundColor !== 'rgba(0, 0, 0, 0)')
+        colorSet.add(cs.backgroundColor);
+      fontSet.add(cs.fontFamily.split(',')[0].trim().replace(/"/g, ''));
+      sizeSet.add(cs.fontSize);
+      if (cs.borderRadius !== '0px') radiusSet.add(cs.borderRadius);
+      if (cs.boxShadow && cs.boxShadow !== 'none') shadowSet.add(cs.boxShadow);
+      const spacingVals = [cs.padding, cs.margin].join(' ').match(/\d+px/g) || [];
+      spacingVals.forEach(v => spacingSet.add(v));
+    }
+  }
+
+  // --- W3C Design Tokens Format ---
+  const w3cTokens = {
+    "$type": "object",
+    "color": {},
+    "typography": {},
+    "spacing": {},
+    "borderRadius": {},
+    "boxShadow": {}
+  };
+
+  // 颜色 token（rgb 格式，W3C 推荐）
+  let ci = 0;
+  for (const c of Array.from(colorSet).slice(0, 15)) {
+    const name = ci === 0 ? "primary" : ci < 5 ? `neutral-${ci}` : `color-${ci}`;
+    w3cTokens.color[name] = { "$type": "color", "$value": c };
+    ci++;
+  }
+
+  // 排版 token
+  const fonts = Array.from(fontSet).slice(0, 3);
+  const sizes = Array.from(sizeSet).sort((a, b) => parseInt(a) - parseInt(b));
+  const weights = ["400", "500", "600", "700"];
+  w3cTokens.typography.fontFamily = { "$type": "fontFamily", "$value": fonts.join(", ") };
+  let si = 0;
+  for (const s of sizes) {
+    const level = ["xs", "sm", "base", "lg", "xl", "2xl", "3xl", "4xl"][si] || `size-${si}`;
+    w3cTokens.typography[level] = {
+      "$type": "typography",
+      "$value": { fontFamily: fonts[0], fontSize: s, fontWeight: weights[1], lineHeight: "1.5" }
+    };
+    si++;
+  }
+
+  // 间距 token
+  let pi = 0;
+  for (const p of Array.from(spacingSet).sort((a, b) => parseInt(a) - parseInt(b))) {
+    const name = ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"][pi] || `space-${pi}`;
+    w3cTokens.spacing[name] = { "$type": "dimension", "$value": p };
+    pi++;
+  }
+
+  // 圆角 token
+  let ri = 0;
+  for (const r of radiusSet) {
+    const name = r === "0px" ? "none" : r === "9999px" ? "full" : `radius-${ri}`;
+    w3cTokens.borderRadius[name] = { "$type": "dimension", "$value": r };
+    ri++;
+  }
+
+  // 阴影 token
+  let shi = 0;
+  for (const s of Array.from(shadowSet).slice(0, 5)) {
+    const name = ["sm", "md", "lg", "xl", "2xl"][shi] || `shadow-${shi}`;
+    w3cTokens.boxShadow[name] = { "$type": "shadow", "$value": s };
+    shi++;
+  }
+
+  return JSON.stringify(w3cTokens, null, 2);
+})()
+```
+
+**输出要求**:
+
+1. **必须将 W3C Design Tokens 写入独立文件**: `.layout-clone/tokens.json`
+2. **该文件格式符合 W3C Design Tokens Community Group 规范**，可直接导入 Figma Token Studio
+3. **同时在 reference.md 的 design_system 字段保留人类可读的摘要版本**
+
+**tokens.json 示例**:
+
+```json
+{
+  "$type": "object",
+  "color": {
+    "primary": { "$type": "color", "$value": "rgb(59, 130, 246)" },
+    "neutral-1": { "$type": "color", "$value": "rgb(31, 41, 55)" },
+    "neutral-2": { "$type": "color", "$value": "rgb(75, 85, 99)" },
+    "neutral-3": { "$type": "color", "$value": "rgb(156, 163, 175)" },
+    "neutral-4": { "$type": "color", "$value": "rgb(209, 213, 219)" }
+  },
+  "typography": {
+    "fontFamily": { "$type": "fontFamily", "$value": "Inter" },
+    "base": {
+      "$type": "typography",
+      "$value": { "fontFamily": "Inter", "fontSize": "16px", "fontWeight": "400", "lineHeight": "1.5" }
+    },
+    "lg": {
+      "$type": "typography",
+      "$value": { "fontFamily": "Inter", "fontSize": "18px", "fontWeight": "500", "lineHeight": "1.5" }
+    }
+  },
+  "spacing": {
+    "xs": { "$type": "dimension", "$value": "4px" },
+    "sm": { "$type": "dimension", "$value": "8px" },
+    "md": { "$type": "dimension", "$value": "16px" },
+    "lg": { "$type": "dimension", "$value": "24px" },
+    "xl": { "$type": "dimension", "$value": "32px" }
+  },
+  "borderRadius": {
+    "sm": { "$type": "dimension", "$value": "4px" },
+    "md": { "$type": "dimension", "$value": "8px" },
+    "lg": { "$type": "dimension", "$value": "12px" },
+    "full": { "$type": "dimension", "$value": "9999px" }
+  },
+  "boxShadow": {
+    "sm": { "$type": "shadow", "$value": "0 1px 2px 0 rgb(0 0 0 / 0.05)" },
+    "md": { "$type": "shadow", "$value": "0 4px 6px -1px rgb(0 0 0 / 0.1)" }
+  }
+}
+```
+
+**reference.md 中的 design_system 摘要**:
+
+```yaml
+design_system:
+  tokens_file: ".layout-clone/tokens.json"  # W3C Design Tokens，可导入 Figma
+  colors:
+    primary: "rgb(59, 130, 246)"
+    neutral: ["rgb(31, 41, 55)", "rgb(75, 85, 99)", "rgb(156, 163, 175)", "rgb(209, 213, 219)"]
+  typography:
+    font-family: "Inter"
+    scale: ["12px", "14px", "16px", "18px", "20px", "24px", "30px", "36px"]
+  spacing: ["4px", "8px", "12px", "16px", "20px", "24px", "32px", "40px", "48px", "64px"]
+  radius: ["0px", "4px", "8px", "12px", "9999px"]
+  shadows: ["0 1px 2px 0 rgb(0 0 0 / 0.05)", "0 4px 6px -1px rgb(0 0 0 / 0.1)"]
+```
+
+#### Step C.2: W3C Design Tokens 导出
+
+**目的**: 将 Step C 提取的设计系统转换为 W3C Design Tokens Format 规范的 `tokens.json`，可直接导入 Figma Token Studio 或其他设计工具。
+
+**W3C Design Tokens Format 规范要求**:
+- 每个 token 必须包含 `$type` 和 `$value` 字段
+- 支持嵌套 group 结构
+- 标准类型: `color`, `dimension`, `fontFamily`, `fontWeight`, `number`, `duration`, `cubicBezier`
+
+**转换逻辑**:
+
+```yaml
+转换规则:
+  颜色:
+    $type: "color"
+    $value: 原始 RGB/HEX 值
+    色阶(如 neutral): 拆分为 neutral-100, neutral-200, ...
+  字体:
+    fontFamily → $type: "fontFamily", $value: [字体名数组]
+    fontSize → $type: "dimension", $value: "16px"
+    fontWeight → $type: "fontWeight", $value: 400 (整数)
+  间距:
+    $type: "dimension"
+    $value: "4px"
+    命名: space-1, space-2, ...
+  圆角:
+    $type: "dimension"
+    $value: "8px"
+    命名: radius-1, radius-2, ...
+  阴影:
+    $type: "shadow"
+    $value: "0 1px 2px 0 rgb(0 0 0 / 0.05)"
+  动效:
+    duration → $type: "duration", $value: "250ms"
+    easing → $type: "cubicBezier", $value: [x1, y1, x2, y2]
+```
+
+**输出文件**: `.layout-clone/tokens.json`
+
+**输出结构示例**:
+
+```json
+{
+  "$type": "object",
+  "$value": {
+    "color": {
+      "primary": { "$type": "color", "$value": "#5e6ad2" },
+      "secondary": { "$type": "color", "$value": "#7170ff" },
+      "background": { "$type": "color", "$value": "#08090a" },
+      "text-primary": { "$type": "color", "$value": "#f7f8f8" },
+      "text-secondary": { "$type": "color", "$value": "#d0d6e0" },
+      "neutral-100": { "$type": "color", "$value": "#08090a" },
+      "neutral-200": { "$type": "color", "$value": "#0f1011" },
+      "neutral-300": { "$type": "color", "$value": "#141516" }
+    },
+    "typography": {
+      "font-family": { "$type": "fontFamily", "$value": ["Inter", "SF Pro Display", "sans-serif"] },
+      "font-size-xs": { "$type": "dimension", "$value": "0.625rem" },
+      "font-size-sm": { "$type": "dimension", "$value": "0.875rem" },
+      "font-size-base": { "$type": "dimension", "$value": "0.9375rem" },
+      "font-size-lg": { "$type": "dimension", "$value": "1.0625rem" },
+      "font-size-xl": { "$type": "dimension", "$value": "1.5rem" },
+      "font-size-2xl": { "$type": "dimension", "$value": "2rem" },
+      "font-size-3xl": { "$type": "dimension", "$value": "3rem" },
+      "font-size-4xl": { "$type": "dimension", "$value": "4.5rem" },
+      "font-weight-normal": { "$type": "fontWeight", "$value": 400 },
+      "font-weight-medium": { "$type": "fontWeight", "$value": 510 },
+      "font-weight-semibold": { "$type": "fontWeight", "$value": 590 }
+    },
+    "spacing": {
+      "space-1": { "$type": "dimension", "$value": "4px" },
+      "space-2": { "$type": "dimension", "$value": "8px" },
+      "space-3": { "$type": "dimension", "$value": "12px" },
+      "space-4": { "$type": "dimension", "$value": "16px" },
+      "space-6": { "$type": "dimension", "$value": "24px" },
+      "space-8": { "$type": "dimension", "$value": "32px" },
+      "space-12": { "$type": "dimension", "$value": "48px" },
+      "space-16": { "$type": "dimension", "$value": "64px" }
+    },
+    "radius": {
+      "radius-sm": { "$type": "dimension", "$value": "4px" },
+      "radius-md": { "$type": "dimension", "$value": "8px" },
+      "radius-lg": { "$type": "dimension", "$value": "12px" },
+      "radius-xl": { "$type": "dimension", "$value": "16px" },
+      "radius-full": { "$type": "dimension", "$value": "9999px" }
+    },
+    "shadow": {
+      "shadow-sm": { "$type": "shadow", "$value": "0 1px 2px 0 rgb(0 0 0 / 0.05)" },
+      "shadow-md": { "$type": "shadow", "$value": "0 4px 6px -1px rgb(0 0 0 / 0.1)" },
+      "shadow-lg": { "$type": "shadow", "$value": "0 10px 15px -3px rgb(0 0 0 / 0.1)" }
+    },
+    "motion": {
+      "duration-fast": { "$type": "duration", "$value": "100ms" },
+      "duration-normal": { "$type": "duration", "$value": "250ms" },
+      "duration-slow": { "$type": "duration", "$value": "400ms" },
+      "easing-default": { "$type": "cubicBezier", "$value": [0.25, 0.46, 0.45, 0.94] },
+      "easing-in-out": { "$type": "cubicBezier", "$value": [0.645, 0.045, 0.355, 1] }
+    }
+  }
+}
+```
+
+### Step D: 交互状态触探
+
+**目的**: 通过 Playwright 自动化遍历主要交互元素，抓取 hover/click/focus 状态前后的样式变化和 transition/animation 属性，反推微交互动效参数。
+
+**执行流程**:
+
+```yaml
+操作:
+  1. 使用 Playwright 选择页面内主要交互元素（按钮、卡片、导航项、输入框、链接）
+  2. 对每个元素执行以下状态序列：
+     - baseline: 记录默认状态的 computed style
+     - hover: 执行 page.hover() → 等待 300ms → 记录样式变化
+     - focus: 执行 page.focus() → 等待 200ms → 记录样式变化（仅表单元素）
+     - active: 执行 page.mouse.down() → 等待 100ms → 记录样式变化 → page.mouse.up()
+  3. 提取 transition 和 animation 属性
+  4. 识别 CSS transition 的持续时间、延迟、缓动函数
+```
+
+**执行脚本**:
+
+```javascript
+// ExecuteScript: 提取交互状态样式变化
+(async () => {
+  // 收集主要交互元素的选择器
+  const interactiveSelectors = [
+    'button', 'a[href]', '[role="button"]', '[role="tab"]',
+    'input', 'textarea', 'select',
+    '[class*="card"]', '[class*="Card"]',
+    '[class*="nav-item"]', '[class*="Nav"] li a',
+    '[class*="sidebar"] a', '[class*="menu"] a'
+  ];
+
+  const results = [];
+
+  for (const sel of interactiveSelectors) {
+    const elements = document.querySelectorAll(sel);
+    for (const el of Array.from(elements).slice(0, 3)) { // 每类最多3个
+      const cs = window.getComputedStyle(el);
+      const transition = cs.transition;
+      const animation = cs.animation;
+
+      // 解析 transition 属性
+      let transitionInfo = null;
+      if (transition && transition !== 'all 0s ease 0s') {
+        const parts = transition.split(',');
+        transitionInfo = parts.map(p => {
+          const [prop, dur, delay, timing] = p.trim().split(/\s+/);
+          return {
+            property: prop,
+            duration: dur,
+            delay: delay || '0s',
+            timingFunction: timing || 'ease'
+          };
+        });
+      }
+
+      // 解析 animation 属性
+      let animationInfo = null;
+      if (animation && animation !== 'none') {
+        const parts = animation.split(',');
+        animationInfo = parts.map(p => {
+          const [name, dur, delay, timing, iteration, direction, fill] = p.trim().split(/\s+/);
+          return {
+            name,
+            duration: dur,
+            delay: delay || '0s',
+            timingFunction: timing || 'ease',
+            iterationCount: iteration || '1',
+            direction: direction || 'normal',
+            fillMode: fill || 'none'
+          };
+        });
+      }
+
+      // 获取 @keyframes 规则（如果能识别到 animation-name）
+      let keyframes = null;
+      if (animationInfo && animationInfo[0] && animationInfo[0].name !== 'none') {
+        for (const sheet of document.styleSheets) {
+          try {
+            for (const rule of sheet.cssRules) {
+              if (rule.type === CSSRule.KEYFRAMES_RULE &&
+                  rule.name === animationInfo[0].name) {
+                keyframes = {
+                  name: rule.name,
+                  steps: Array.from(rule.cssRules).map(r => ({
+                    keyText: r.keyText,
+                    style: r.style.cssText
+                  }))
+                };
+                break;
+              }
+            }
+          } catch (e) { /* 跨域样式表跳过 */ }
+        }
+      }
+
+      results.push({
+        selector: sel,
+        tag: el.tagName.toLowerCase(),
+        class: (el.className || '').toString().split(' ').slice(0, 3).join(' '),
+        text: (el.textContent || '').trim().slice(0, 50),
+        transition: transitionInfo,
+        animation: animationInfo,
+        keyframes,
+        defaultStyles: {
+          color: cs.color,
+          backgroundColor: cs.backgroundColor !== 'rgba(0, 0, 0, 0)' ? cs.backgroundColor : undefined,
+          transform: cs.transform !== 'none' ? cs.transform : undefined,
+          opacity: cs.opacity !== '1' ? cs.opacity : undefined,
+          boxShadow: cs.boxShadow !== 'none' ? cs.boxShadow : undefined
+        }
+      });
+    }
+  }
+
+  return JSON.stringify(results, null, 2);
+})()
+```
+
+**Playwright 状态触探脚本**:
+
+```yaml
+# Playwright 自动化: hover/click 状态遍历
+操作:
+  1. page.goto(url) → 等待 load
+  2. page.setViewportSize({ width: 1440, height: 900 })
+  3. 等待 page.waitForTimeout(1000) 让动画完成
+  4. 遍历 interactiveSelectors：
+     for selector in selectors:
+       elements = page.locator(selector).all()
+       for element in elements.slice(0, 3):
+         # baseline 截图
+         baseline_screenshot = page.screenshot()
+
+         # hover 状态
+         element.hover()
+         page.waitForTimeout(350)
+         hover_screenshot = page.screenshot()
+
+         # 执行 JS 提取 hover 前后样式差异
+         style_diff = page.evaluate("""
+           const el = document.querySelector('${selector}');
+           const cs = window.getComputedStyle(el);
+           return {
+             color: cs.color,
+             backgroundColor: cs.backgroundColor,
+             transform: cs.transform,
+             boxShadow: cs.boxShadow,
+             opacity: cs.opacity
+           };
+         """)
+
+         # click 状态（对于按钮/链接）
+         if selector in ['button', 'a[href]', '[role="button"]']:
+           element.click({ modifiers: ['Shift'] })  # Shift+click 防止导航
+           page.waitForTimeout(150)
+           active_screenshot = page.screenshot()
+
+         # 记录结果
+         results.push({ selector, style_diff })
+```
+
+**输出结构** (合并到 `.layout-clone/reference.md` 的 interactions 字段):
+
+```yaml
+interactions:
+  hover_effects:
+    - selector: "button"
+      changes:
+        backgroundColor: "rgb(37, 99, 235) → rgb(29, 78, 216)"  # 深一度
+        boxShadow: "none → 0 4px 6px -1px rgb(0 0 0 / 0.1)"
+        transition: "background-color 150ms ease, box-shadow 150ms ease"
+    - selector: "a[href]"
+      changes:
+        color: "rgb(59, 130, 246) → rgb(37, 99, 235)"
+        textDecoration: "none → underline"
+        transition: "color 150ms ease, text-decoration-color 150ms ease"
+    - selector: "[class*='card']"
+      changes:
+        transform: "none → translateY(-2px)"
+        boxShadow: "0 1px 3px → 0 10px 15px -3px"
+        transition: "transform 200ms ease, box-shadow 200ms ease"
+  click_effects:
+    - selector: "button"
+      changes:
+        transform: "none → scale(0.98)"
+        transition: "transform 100ms ease"
+  focus_effects:
+    - selector: "input"
+      changes:
+        borderColor: "rgb(209, 213, 219) → rgb(59, 130, 246)"
+        boxShadow: "none → 0 0 0 3px rgb(59, 130, 246 / 0.1)"
+        transition: "border-color 150ms ease, box-shadow 150ms ease"
+  keyframes:
+    - name: "fadeIn"
+      steps:
+        - keyText: "0%"
+          style: "opacity: 0; transform: translateY(10px)"
+        - keyText: "100%"
+          style: "opacity: 1; transform: translateY(0)"
+    - name: "slideIn"
+      steps:
+        - keyText: "0%"
+          style: "transform: translateX(-100%)"
+        - keyText: "100%"
+          style: "transform: translateX(0)"
+```
+
+### Step E: 网络拦截与 API 数据模型提取 (Network Interception)
+
+**目的**: 在 Playwright 会话期间拦截 XHR/Fetch 请求，提取 API 响应结构并推断数据模型（Data Schema）。
+
+**使用场景**: 当目标站点是 SPA（单页应用）或使用 REST/GraphQL API 时，提取其数据结构用于生成 Mock 数据和类型定义。
+
+**执行流程**:
+
+```yaml
+操作:
+  1. 在 Playwright 启动后、页面加载前，注册网络拦截监听器
+  2. 使用 page.on('response') 捕获所有网络响应
+  3. 过滤 Content-Type 为 application/json 的响应
+  4. 分析 JSON 结构，推断数据模型（实体、字段类型、嵌套关系）
+  5. 按 API 路径分组，生成 Mock API 结构
+  6. 将提取的数据模型写入 reference.md 的 data_models 字段
+```
+
+**Playwright 拦截脚本**:
+
+```yaml
+# Playwright: 网络拦截流程
+操作:
+  1. page.on('response', async (response) => {
+       const contentType = response.headers()['content-type'] || '';
+       if (contentType.includes('application/json')) {
+         const body = await response.json();
+         // 存储到 window.__apiCapture 数组
+       }
+     })
+  2. page.goto(url) → 等待 load
+  3. page.reload() → 重新加载以捕获初始 API 调用
+  4. 等待 page.waitForTimeout(3000)
+  5. 执行交互操作（点击、滚动、导航）触发更多 API 请求
+  6. 等待 page.waitForTimeout(2000)
+  7. 提取 window.__apiCapture 数据
+```
+
+**数据结构推断脚本**:
+
+```javascript
+// ExecuteScript: 分析拦截到的 API 响应
+(() => {
+  const responses = window.__apiCapture || [];
+
+  // 按路径分组
+  const grouped = {};
+  for (const resp of responses) {
+    const url = new URL(resp.url);
+    const path = url.pathname;
+    if (!grouped[path]) grouped[path] = [];
+    grouped[path].push(resp);
+  }
+
+  // 推断每个端点的数据模型
+  const dataModels = {};
+  for (const [path, resps] of Object.entries(grouped)) {
+    const sample = resps[0];
+    dataModels[path] = {
+      method: sample.method,
+      status: sample.status,
+      schema: inferSchema(sample.body),
+      fields: Object.keys(sample.body || {}),
+      sampleCount: resps.length
+    };
+  }
+
+  function inferSchema(obj) {
+    if (obj === null || obj === undefined) return { type: 'null' };
+    if (Array.isArray(obj)) {
+      return {
+        type: 'array',
+        length: obj.length,
+        itemSchema: obj.length > 0 ? inferSchema(obj[0]) : null
+      };
+    }
+    if (typeof obj !== 'object') return { type: typeof obj };
+    const schema = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (Array.isArray(value)) {
+        schema[key] = {
+          type: 'array',
+          itemSchema: value.length > 0 ? inferSchema(value[0]) : null
+        };
+      } else if (typeof value === 'object' && value !== null) {
+        schema[key] = inferSchema(value);
+      } else {
+        schema[key] = { type: typeof value, sample: value };
+      }
+    }
+    return schema;
+  }
+
+  return JSON.stringify(dataModels, null, 2);
+})()
+```
+
+**输出结构** (写入 `.layout-clone/reference.md` 的 data_models 字段):
+
+```yaml
+data_models:
+  "/api/users":
+    method: "GET"
+    status: 200
+    sampleCount: 3
+    fields: ["data", "meta"]
+    schema:
+      type: "object"
+      data:
+        type: "array"
+        itemSchema:
+          type: "object"
+          id: { type: "number", sample: 1 }
+          name: { type: "string", sample: "张三" }
+          email: { type: "string", sample: "zhang@example.com" }
+          avatar: { type: "string", sample: "https://..." }
+          role: { type: "string", sample: "admin" }
+      meta:
+        type: "object"
+        total: { type: "number", sample: 100 }
+        page: { type: "number", sample: 1 }
+  "/api/posts":
+    method: "GET"
+    status: 200
+    sampleCount: 5
+    fields: ["data"]
+    schema:
+      type: "object"
+      data:
+        type: "array"
+        itemSchema:
+          type: "object"
+          id: { type: "number" }
+          title: { type: "string" }
+          content: { type: "string" }
+          author:
+            type: "object"
+            id: { type: "number" }
+            name: { type: "string" }
+          tags:
+            type: "array"
+            itemSchema: { type: "string" }
+          publishedAt: { type: "string" }
+  "/api/auth/login":
+    method: "POST"
+    status: 200
+    sampleCount: 1
+    fields: ["token", "user"]
+    schema:
+      type: "object"
+      token: { type: "string" }
+      user:
+        type: "object"
+        id: { type: "number" }
+        email: { type: "string" }
+```
+
+### Dynamic Extraction Phase: 写入 reference.md
+
+完成 Step A ~ E 后，将所有提取结果写入 `.layout-clone/reference.md`，格式与本地静态分析的输出**完全一致**，确保 Phase 3 无需区分来源。同时将 W3C Design Tokens 写入独立的 `.layout-clone/tokens.json` 文件。
+
+```markdown
+# Reference Analysis: [站点URL或名称]
+
+> 提取方式: Dynamic Extraction (v7.0.0)
+> 提取时间: [ISO 8601]
+
+## Tech Stack
+<!-- 从页面 HTML head/meta、script src、CSS link 中推断框架和库 -->
+<!-- 如: Next.js、React、Tailwind CSS、Framer Motion 等 -->
+
+## Layout Structure
+<!-- Step A 视觉骨架分析 + Step B 语义结构树 -->
+
+## Design System
+<!-- Step C computed style 提取的 Design Token -->
+
+## Component Patterns
+<!-- Step B 语义结构中提取的组件类型和层级 -->
+
+## Animations
+<!-- Step D 提取的 keyframes 和 animation 属性 -->
+
+## Interactions
+<!-- Step D hover/click/focus 状态变化和 transition 参数 -->
+
+## Semantic Tree
+<!-- Step B 完整的语义化 DOM 树（JSON） -->
+
+## Responsive Behavior
+<!-- 对比 1440px 和 375px 两个视口下的结构差异 -->
+
+## Site Structure
+<!-- Step A.5 站点地图：页面列表、导航层级、路由关系 -->
+
+## Data Models
+<!-- Step E 网络拦截：API 端点、数据模型、Mock 结构 -->
+
+## Design Tokens File
+<!-- tokens.json 的 W3C Design Tokens 格式引用 -->
+```
+
+---
+
+## Phase 1: 参考项目分析（本地源码模式）
+
+**输入**: 本地参考项目的路径
+
+**注意**: 此 Phase 仅在输入类型嗅探判定为「本地路径」时执行。线上 URL 请执行上方的 Dynamic Extraction Phase。
+
+### 1.1 技术栈识别
+
+```bash
+# 扫描项目根目录
+Glob pattern="**/*.{json,lock,toml}"  →  读取 package.json / requirements.txt / pyproject.toml
+Glob pattern="**/*.{html,jsx,tsx,vue,svelte}"  →  识别框架
+Glob pattern="**/*.{css,scss,less,styl}"  →  识别样式方案
+```
+
+**识别清单**:
+| 信号 | 判断 |
+|------|------|
+| `electron` in dependencies 或 devDependencies | Electron 桌面端 |
+| `main.js` / `preload.js` 在项目中 | Electron 主进程 |
+| `electron-builder` / `electron-forge` | Electron 打包工具 |
+| `next.config.*` | Next.js |
+| `nuxt.config.*` | Nuxt |
+| `vite.config.*` | Vite |
+| `.css` 文件 | 原生 CSS |
+| `*.scss` / `*.module.scss` | SCSS / CSS Modules |
+| `tailwind.config.*` | Tailwind CSS |
+| `styled-components` / `emotion` | CSS-in-JS |
+
+### 1.2 布局结构提取
+
+搜索布局相关文件并读取：
+
+```
+Grep pattern="display:\s*(grid|flex)"  →  提取 Grid/Flex 容器
+Grep pattern="@media"  →  提取响应式断点
+Grep pattern="position:\s*(fixed|sticky|absolute)"  →  提取定位模式
+```
+
+**提取项**:
+- 页面骨架结构（header/sidebar/main/footer）
+- Grid 模板（grid-template-columns / grid-template-rows）
+- Flex 方向和对齐（flex-direction, justify-content, align-items）
+- 间距系统（gap, margin, padding 的规律值）
+- 响应式断点（sm/md/lg/xl 的断点值和对应变化）
+
+### 1.3 设计系统提取
+
+```
+Grep pattern="#[0-9a-fA-F]{3,8}"  →  颜色值
+Grep pattern="rgb[a]?\("  →  颜色值（函数格式）
+Grep pattern="var\(--[^)]+\)"  →  CSS 变量/token
+Grep pattern="font-family"  →  字体
+Grep pattern="font-size"  →  字号系统
+Grep pattern="border-radius"  →  圆角系统
+Grep pattern="box-shadow"  →  阴影系统
+Grep pattern="transition|animation|@keyframes"  →  CSS 动效
+```
+
+**输出结构**:
+```yaml
+colors:
+  primary: #xxx
+  secondary: #xxx
+  neutral: [#xxx, #xxx, ...]  # 按灰度排列
+  accent: #xxx
+typography:
+  font-family: "xxx"
+  scale: [12, 14, 16, 18, 20, 24, 32, 48]
+  weights: [400, 500, 600, 700]
+spacing: [4, 8, 12, 16, 24, 32, 48, 64]
+radius: [0, 4, 8, 12, 16, 9999]
+shadows: [sm, md, lg]  # 列出实际值
+breakpoints: { sm: 640, md: 768, lg: 1024, xl: 1280 }
+```
+
+### 1.4 组件模式提取
+
+```
+Grep pattern="className.*card|className.*Card"  →  卡片模式
+Grep pattern="className.*nav|className.*Nav|className.*menu"  →  导航模式
+Grep pattern="className.*modal|className.*dialog"  →  弹窗模式
+Grep pattern="className.*btn|className.*button"  →  按钮模式
+Glob pattern="**/components/**/*.{tsx,jsx,vue}"  →  列出所有组件
+```
+
+对每个关键组件：读取源码 → 提取 props 接口 + 样式模式 + 变体逻辑。
+
+### 1.5 JS 交互行为提取
+
+```
+Grep pattern="onClick|onChange|onSubmit|addEventListener"  →  事件处理器
+Grep pattern="useEffect|componentDidMount|onMounted"  →  生命周期/副作用
+Grep pattern="useCallback|useMemo|memo\("  →  性能优化模式
+Glob pattern="**/hooks/**/*.{ts,tsx,js,jsx}"  →  自定义 hooks
+```
+
+**提取项**:
+- 事件处理模式（点击、输入、提交、键盘）
+- DOM 操作方式（直接操作 vs 声明式）
+- 表单验证逻辑（前端校验规则、错误提示）
+- 滚动行为（平滑滚动、锚点跳转、滚动加载）
+- 拖拽交互（拖拽排序、拖拽放置）
+- 焦点管理（焦点陷阱、Tab 键导航）
+
+### 1.6 动画系统深度分析
+
+```
+Grep pattern="gsap|framer-motion|anime\.js|lottie|react-spring"  →  JS 动画库
+Grep pattern="requestAnimationFrame|setInterval.*animation"  →  原生动画循环
+Grep pattern="will-change|transform|@keyframes"  →  CSS 动画
+Grep pattern="ScrollTrigger|IntersectionObserver|scroll"  →  滚动触发
+```
+
+**提取项**:
+- 动画库类型和版本
+- 动画配置参数（持续时间、缓动函数、延迟）
+- 编排模式（序列、交错、时间线、并行）
+- 性能模式（will-change 使用、GPU 加速、帧率控制）
+- 交互动画（hover、focus、scroll-triggered、入场/退场）
+
+### 1.7 状态管理模式提取
+
+```
+Grep pattern="createStore|configureStore|defineStore|create\("  →  全局状态库
+Grep pattern="useState|useReducer|ref\(|reactive\("  →  局部状态
+Grep pattern="selector|useSelector|computed|get\("  →  状态派生
+Grep pattern="loading|error|data|isLoading|isError"  →  异步状态模式
+```
+
+**提取项**:
+- 状态库类型（Redux / Vuex / Pinia / Zustand / Jotai 等）
+- 状态结构（扁平 vs 嵌套、模块化方式）
+- 数据流方向（单向 vs 双向、状态提升方式）
+- 异步状态处理（loading/error/data 模式、乐观更新）
+- 状态持久化（localStorage、sessionStorage、URL 状态）
+
+### 1.8 动态渲染模式提取
+
+```
+Grep pattern="\? .+ : |\|\||&&.*return"  →  条件渲染
+Grep pattern="\.map\(|v-for|*ngFor"  →  列表渲染
+Grep pattern="Suspense|lazy\(|defineAsyncComponent"  →  异步加载
+Grep pattern="key=|:key="  →  key 使用模式
+```
+
+**提取项**:
+- 条件渲染逻辑（三元运算、逻辑与、switch 语句）
+- 列表渲染模式（key 使用、虚拟滚动、分页加载）
+- 异步加载策略（Suspense、lazy loading、骨架屏）
+- 数据绑定模式（单向/双向绑定、响应式系统）
+
+### 1.9 3D 场景提取（Three.js / WebGL）
+
+```
+Grep pattern="THREE\.(Scene|Camera|Renderer|WebGLRenderer)"  →  场景基础架构
+Grep pattern="THREE\.(BoxGeometry|SphereGeometry|PlaneGeometry|BufferGeometry|CylinderGeometry)"  →  几何体类型
+Grep pattern="THREE\.(MeshStandardMaterial|MeshPhysicalMaterial|ShaderMaterial|PointsMaterial|LineBasicMaterial)"  →  材质类型
+Grep pattern="THREE\.(PointLight|DirectionalLight|AmbientLight|SpotLight|HemisphereLight)"  →  灯光配置
+Grep pattern="THREE\.(OrbitControls|TrackballControls|FlyControls)"  →  控制器
+Grep pattern="new THREE\.(GLTFLoader|OBJLoader|FBXLoader|TextureLoader)"  →  资源加载器
+Grep pattern="requestAnimationFrame|renderer\.render"  →  渲染循环
+Grep pattern="uniform|varying|attribute|gl_Position|gl_FragColor"  →  自定义 Shader (GLSL)
+Grep pattern="Points|BufferAttribute|InstancedMesh"  →  粒子/实例化渲染
+Glob pattern="**/*.{glb,gltf,obj,fbx,bin}"  →  3D 模型文件
+Glob pattern="**/*.{vert,frag,glsl}"  →  Shader 文件
+```
+
+**提取项**:
+- 场景图结构（Scene → Group → Mesh 的层级关系）
+- 相机配置（PerspectiveCamera / OrthographicCamera 参数）
+- 渲染器参数（antialias、alpha、pixelRatio、toneMapping）
+- 几何体参数（顶点数、段数、自定义 BufferAttribute）
+- 材质配置（颜色、粗糙度、金属度、透明度、贴图）
+- 灯光布局（位置、颜色、强度、阴影配置）
+- 动画系统（关键帧动画、骨骼动画、变形动画）
+- 粒子系统（粒子数量、运动逻辑、大小衰减）
+- 资源清单（模型文件、贴图文件、Shader 文件列表）
+
+**3D 场景代码结构模板**:
+```javascript
+// 场景初始化
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+const renderer = new THREE.WebGLRenderer({ antialias, alpha });
+
+// 几何体 + 材质 → Mesh
+const geometry = new THREE.XxxGeometry(...params);
+const material = new THREE.XxxMaterial({...config});
+const mesh = new THREE.Mesh(geometry, material);
+
+// 灯光
+const light = new THREE.XxxLight(color, intensity);
+light.position.set(x, y, z);
+
+// 渲染循环
+function animate() {
+  requestAnimationFrame(animate);
+  // 更新逻辑
+  renderer.render(scene, camera);
+}
+```
+
+### 1.10 Canvas 2D 提取
+
+```
+Grep pattern="getContext\(['\"]2d['\"]"  →  Canvas 2D 上下文
+Grep pattern="fillRect|strokeRect|clearRect|beginPath|arc\(|lineTo|moveTo"  →  绘图指令
+Grep pattern="createLinearGradient|createRadialGradient|createPattern"  →  渐变/图案
+Grep pattern="drawImage|getImageData|putImageData"  →  图像操作
+Grep pattern="fillText|strokeText|measureText|font\s*="  →  文字渲染
+Grep pattern="requestAnimationFrame|cancelAnimationFrame"  →  Canvas 动画循环
+Grep pattern="addEventListener\(['\"]mousemove|addEventListener\(['\"]click"  →  Canvas 交互
+Glob pattern="**/*.{canvas,png,jpg,svg}"  →  Canvas 引用的图片资源
+```
+
+**提取项**:
+- Canvas 尺寸和 DPI 适配（canvas.width vs CSS width, devicePixelRatio）
+- 绘图操作序列（路径绘制、形状、颜色填充）
+- 渐变和图案配置
+- 动画帧逻辑（帧率控制、清除策略）
+- 交互事件绑定（鼠标追踪、点击检测）
+- 图像处理操作（裁剪、滤镜、像素操作）
+
+### 1.11 高级动画库提取
+
+```
+Grep pattern="lottie\.loadAnimation|bodymovin|Lottie"  →  Lottie 动画
+Grep pattern="from\(|to\(|fromTo\(|timeline\("  →  GSAP 动画方法
+Grep pattern="animate\(|useAnimate|useMotionValue|useTransform"  →  Framer Motion
+Grep pattern="useSpring|useTransition|animated\."  →  React Spring
+Grep pattern="anime\(|anime\.timeline"  →  Anime.js
+Grep pattern="motion\.|variants|whileHover|whileTap|animate="  →  Framer Motion JSX
+Grep pattern="transition:|spring:|tween:"  →  动画配置
+Glob pattern="**/*.json"  →  Lottie JSON 动画文件
+Glob pattern="**/*.{lottie,json}"  →  Lottie 资源
+```
+
+**提取项**:
+- 动画库类型和版本
+- Lottie: 动画 JSON 路径、播放控制（loop/autoplay/direction）、Segments
+- GSAP: Timeline 编排、Stagger、ScrollTrigger 配置
+- Framer Motion: variants 定义、layout 动画、手势动画（whileHover/whileTap）
+- React Spring: spring 配置（mass/stiffness/damping）、过渡类型
+- 通用: 缓动函数、持续时间、延迟、回调
+
+### 1.12 拖拽交互提取
+
+```
+Grep pattern="useDrag|useDrop|onDragStart|onDragEnd|onDrop"  →  拖拽事件
+Grep pattern="DragDropContext|Droppable|Draggable"  →  react-beautiful-dnd / DnD Kit
+Grep pattern="Sortable|useSortable|sortableList"  →  SortableJS
+Grep pattern="pointerdown|pointermove|pointerup|setPointerCapture"  →  Pointer Events 拖拽
+Grep pattern="touchstart|touchmove|touchend"  →  触摸拖拽
+Grep pattern="mousedown|mousemove|mouseup"  →  鼠标拖拽
+Grep pattern="transform.*translate|left:|top:"  →  拖拽位移实现
+```
+
+**提取项**:
+- 拖拽库类型（DnD Kit / SortableJS / react-beautiful-dnd / 原生实现）
+- 拖拽模式（排序、跨容器移动、调整大小、自由拖动）
+- 拖拽手柄（handle selector）
+- 拖拽预览（drag preview / overlay）
+- 放置区域逻辑（drop zone detection）
+- 拖拽动画（排序过渡、回弹效果）
+- 触摸支持（touch-action、手势冲突处理）
+
+### 1.13 音频可视化提取
+
+```
+Grep pattern="AudioContext|OfflineAudioContext|createAnalyser"  →  Web Audio API
+Grep pattern="createOscillator|createGain|createBiquadFilter"  →  音频节点
+Grep pattern="getByteFrequencyData|getFloatTimeDomainData"  →  频谱/波形数据
+Grep pattern="AnalyserNode|fftSize|frequencyBinCount"  →  分析器配置
+Grep pattern="requestAnimationFrame.*draw|canvas.*audio"  →  音频驱动渲染
+Grep pattern="createMediaElementSource|MediaStream"  →  音频源
+Glob pattern="**/*.{mp3,wav,ogg,m4a}"  →  音频文件
+```
+
+**提取项**:
+- AudioContext 配置（sampleRate、latencyHint）
+- 分析器参数（fftSize、smoothingTimeConstant）
+- 可视化类型（频谱柱状图、波形图、圆形频谱、粒子随音乐跳动）
+- 频率数据处理（对数缩放、频段分组、峰值检测）
+- 渲染方式（Canvas 2D / CSS 变量驱动 / Three.js 粒子）
+- 音频源类型（Element / Buffer / Stream）
+
+### 1.14 手势系统提取
+
+```
+Grep pattern="Hammer|useGesture|Gesture"  →  手势库
+Grep pattern="pinch|rotate|swipe|pan|tap|longpress"  →  手势类型
+Grep pattern="usePinch|useScroll|useWheel|useMove"  →  @use-gesture hooks
+Grep pattern="touch-action|overscroll-behavior"  →  触摸行为 CSS
+Grep pattern="IntersectionObserver|MutationObserver"  →  滚动/可见性观察
+Grep pattern="scroll-timeline|view-timeline|animation-timeline"  →  滚动驱动动画
+```
+
+**提取项**:
+- 手势库类型（Hammer.js / @use-gesture / 原生 Pointer Events）
+- 手势类型（捏合、旋转、滑动、拖拽、长按、双击）
+- 手势配置（阈值、方向锁定、速度检测）
+- 滚动驱动动画（scroll-timeline、IntersectionObserver）
+- 触摸优化（touch-action、被动事件监听、防抖）
+
+### 1.15 Electron 桌面端提取
+
+**仅当 Phase 1.1 识别到 Electron 时执行此步骤。**
+
+```
+Grep pattern="BrowserWindow|BrowserView"  →  窗口创建配置
+Grep pattern="ipcMain\.on|ipcMain\.handle|ipcRenderer\.send|ipcRenderer\.invoke"  →  IPC 通信
+Grep pattern="preload|contextBridge|exposeInMainWorld"  →  预加载脚本
+Grep pattern="globalShortcut|accelerator"  →  全局快捷键
+Grep pattern="Tray|Menu|MenuItem"  →  系统托盘和菜单
+Grep pattern="dialog\.show|dialog\.showMessageBox"  →  系统对话框
+Grep pattern="shell\.openExternal|shell\.showItemInFolder"  →  系统 shell 操作
+Grep pattern="session\.defaultSession|cookies\.set|cookies\.get"  →  会话/Cookie 管理
+Grep pattern="webContents\.send|win\.webContents"  →  窗口间通信
+Grep pattern="-webkit-app-region:\s*drag|app-region"  →  可拖拽区域（标题栏）
+Grep pattern="transparent.*true|frame.*false|vibrancy|trafficLightPosition"  →  无边框/透明窗口
+Glob pattern="**/main.js"  →  Electron 主进程入口
+Glob pattern="**/preload*.js"  →  预加载脚本
+Glob pattern="**/*.nsh"  →  NSIS 安装脚本
+```
+
+**提取项**:
+
+**窗口配置**:
+- BrowserWindow 参数（width/height/transparent/frame/vibrancy/alwaysOnTop）
+- 窗口状态记忆（位置/大小持久化）
+- 窗口比例锁定（aspectRatio）
+- 最小窗口尺寸限制
+
+**自定义标题栏**:
+- 标题栏 HTML 结构和样式
+- 最小化/最大化/关闭按钮实现
+- `-webkit-app-region: drag` 拖拽区域
+- 窗口控制按钮 hover/active 效果
+- 双击标题栏最大化/还原
+
+**多窗口系统**:
+- 窗口类型清单（主窗口、歌词窗口、壁纸窗口、设置窗口）
+- 窗口间 IPC 通信协议
+- 窗口生命周期管理（创建/销毁/显示/隐藏）
+
+**系统集成**:
+- 全局快捷键注册（播放/暂停、上一首/下一首）
+- 系统托盘（图标、右键菜单、气泡通知）
+- 开机自启动
+- 单实例锁（防止多开）
+
+**安装包配置**:
+- electron-builder / electron-forge 配置
+- NSIS 安装脚本（自定义界面、安装流程）
+- 应用图标（.ico / .icns）
+- 代码签名配置
+
+**Electron 代码结构模板**:
+```javascript
+// main.js - 主进程
+const { app, BrowserWindow, ipcMain } = require('electron');
+
+function createWindow() {
+  const win = new BrowserWindow({
+    width: 960, height: 540,
+    frame: false,           // 无边框
+    transparent: true,      // 透明
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  });
+  win.loadFile('public/index.html');
+}
+
+// preload.js - 预加载脚本
+const { contextBridge, ipcRenderer } = require('electron');
+contextBridge.exposeInMainWorld('electronAPI', {
+  minimize: () => ipcRenderer.send('window-minimize'),
+  maximize: () => ipcRenderer.send('window-maximize'),
+  close: () => ipcRenderer.send('window-close')
+});
+
+// renderer 中调用
+window.electronAPI.minimize();
+```
+
+### 1.16 写入 reference.md
+
+将以上所有提取结果写入 `.layout-clone/reference.md`，格式：
+
+```markdown
+# Reference Analysis: [项目名]
+
+## Tech Stack
+## Layout Structure
+## Design System
+## Component Patterns
+## Animations
+## Interactions
+## State Management
+## Dynamic Rendering
+## 3D Scene (if applicable)
+## Canvas 2D (if applicable)
+## Advanced Animations
+## Drag & Drop
+## Audio Visualization (if applicable)
+## Gestures (if applicable)
+## Electron (if applicable)
+## Data Models (v7.0.0 新增)
+## Site Structure (v7.0.0 新增)
+```
+
+## Phase 2: 目标项目分析
+
+**输入**: 用户项目的路径
+
+### 2.1 技术栈识别
+
+同 Phase 1.1，额外识别：
+- 现有组件库（antd, shadcn, MUI 等）
+- CSS 方案（CSS Modules / Tailwind / styled-components / 原生 CSS）
+- TypeScript 是否启用
+
+### 2.2 现有设计系统
+
+```
+Grep pattern="var\(--"  →  现有 CSS 变量
+Grep pattern="theme|tokens|design-system"  →  是否有 token 系统
+Glob pattern="**/tokens/**" / "**/theme/**"  →  token 文件
+Glob pattern="**/globals.css" / "**/variables.css"  →  全局样式
+```
+
+### 2.3 确定替换范围
+
+**必须询问用户**:
+- 是替换整个页面还是某个区域？
+- 参考项目的哪些部分需要克隆？
+- 有没有不能动的部分（已有功能/逻辑）？
+
+### 2.4 现有交互与状态检测
+
+```
+Grep pattern="gsap|framer-motion|anime\.js"  →  已有动画库
+Grep pattern="createStore|configureStore|defineStore"  →  已有状态库
+Grep pattern="onClick|onChange|onSubmit"  →  已有交互模式
+Grep pattern="useState|useReducer|ref\("  →  已有状态模式
+Grep pattern="electron|BrowserWindow|ipcMain"  →  已有 Electron 配置
+```
+
+**目的**: 检测目标项目已使用的方案，避免冲突和重复引入。
+
+### 2.5 写入 target.md
+
+```markdown
+# Target Analysis: [项目名]
+
+## Tech Stack
+## Existing Design System
+## Existing Interactions & State
+## Replaceable Areas
+## Constraints
+```
+
+## Phase 3: 多代理协作生成架构 (Multi-Agent Swarm)
+
+**前置**: 读取 `.layout-clone/reference.md` 和 `.layout-clone/target.md`（以及 `.layout-clone/tokens.json`）
+
+**核心原则**: 禁止单一 Agent 在面对复杂页面时「强行单干」，必须通过 DelegateTask 派发子任务，避免 Token 超载和输出质量下降。
+
+### 策略选择
+
+| 场景 | 策略 | 说明 |
+|------|------|------|
+| 同技术栈 + 需要完全一致的视觉 | A: 完全克隆 | 直接复刻布局和样式 |
+| 同技术栈 + 想要更好的视觉 | B: 结构保留+升级 | 保留骨架，升级颜色/字体/间距/阴影 |
+| 不同技术栈 或 只需要灵感 | C: 灵感提取 | 只提取核心设计元素，适配到目标 |
+| 需要克隆完整功能（交互+动画+状态） | D: 交互优先克隆 | 保留参考项目的交互逻辑，适配到目标技术栈 |
+
+**如果不确定，询问用户选择哪种策略。**
+
+### 多代理架构
+
+**Main Agent (协调者)**:
+- 负责整体架构决策和页面骨架生成
+- 生成共享组件（Layout、Header、Footer）
+- 定义组件接口和 Props 类型
+- 创建 shared-context.json 协调文件
+- 使用 DelegateTask 派发子任务给 SubAgent
+- 执行最终的 Merge & Review
+
+**SubAgent 分工**:
+
+| Agent | 职责 | 输入 | 输出 |
+|-------|------|------|------|
+| CSS_Agent | 复杂样式系统、关键帧动画、响应式布局 | reference.md §Design System + tokens.json | CSS 文件、样式变量、动画定义 |
+| ThreeJS_Agent | 3D 场景、WebGL 渲染、自定义 Shader | reference.md §3D Scene | Three.js 组件、场景配置、GLSL 代码 |
+| DataViz_Agent | 数据可视化、图表、Canvas 绑定 | reference.md §Canvas 2D + §Data Models | 图表组件、可视化渲染逻辑 |
+| Logic_Agent | 交互逻辑、状态管理、API 集成 | reference.md §Interactions + §State Management | 事件处理、状态代码、数据请求 |
+
+### 协作流程
+
+```yaml
+Phase 3.1: Main Agent 布局骨架
+  1. 读取 reference.md、target.md、tokens.json
+  2. 选择克隆策略 (A/B/C/D)
+  3. 生成页面骨架 (header/sidebar/main/footer)
+  4. 定义组件接口和 Props 类型
+  5. 创建 shared-context.json (见下方格式)
+  6. 生成共享布局组件
+
+Phase 3.2: SubAgent 并行生成
+  1. 使用 DelegateTask 并行启动 SubAgent
+  2. 每个 SubAgent 接收 shared-context.json 内容
+  3. 各自生成负责的代码模块
+  4. 输出到指定路径
+  5. SubAgent 完成后报告状态
+
+Phase 3.3: Merge & Review
+  1. Main Agent 收集所有 SubAgent 输出
+  2. 执行导入/依赖检查
+  3. 解决命名冲突和重复代码
+  4. 生成最终的组件组装代码
+  5. 确保所有 SubAgent 代码与设计系统兼容
+  6. 执行 Phase 4 质量检查
+```
+
+### 共享上下文协议
+
+**shared-context.json 格式**:
+
+```json
+{
+  "version": "7.0.0",
+  "strategy": "A",
+  "targetProject": {
+    "framework": "react",
+    "cssSolution": "tailwind",
+    "stateManagement": "zustand",
+    "animationLibrary": "framer-motion",
+    "typescript": true
+  },
+  "referenceAnalysis": {
+    "path": ".layout-clone/reference.md",
+    "tokensPath": ".layout-clone/tokens.json"
+  },
+  "components": {
+    "layout": { "path": "src/components/Layout.tsx", "props": ["children"] },
+    "header": { "path": "src/components/Header.tsx", "props": ["navItems", "user"] },
+    "footer": { "path": "src/components/Footer.tsx", "props": ["links"] }
+  },
+  "sharedTokens": {
+    "colors": { "primary": "var(--color-primary)" },
+    "spacing": { "sm": "var(--space-sm)" }
+  },
+  "navigation": {
+    "links": [
+      { "label": "Features", "file": "features.html" },
+      { "label": "Pricing", "file": "pricing.html" }
+    ]
+  },
+  "constraints": {
+    "noNewDependencies": true,
+    "useExistingComponents": true
+  }
+}
+```
+
+### 多页面协调
+
+**当 site_structure 存在时**:
+
+1. Main Agent 生成共享布局组件（Header、Footer、Layout）
+2. 写入 shared-context.json 包含导航链接列表
+3. 每个子页面的 SubAgent 必须读取 shared-context.json 中的导航配置
+4. 所有页面的导航链接必须使用 shared-context 中定义的文件名
+5. 当前页面对应的导航项必须添加 `class="active"`
+6. 所有页面的 Logo 链接指向 `index.html`
+
+### 生成规范
+
+**布局代码**:
+- 使用目标项目的样式方案（CSS Modules → 写 `.module.css`，Tailwind → 写 class）
+- 间距/颜色/字体必须映射到 tokens.json 中的 Design Token
+- 不硬编码魔法数字，使用变量或 token
+
+**组件代码**:
+- 遵循目标项目的组件模式（函数组件 vs class、文件结构、命名风格）
+- Props 类型使用目标项目的类型系统
+- 复用目标项目已有的组件（如 Button、Input）
+
+**交互代码**:
+- 事件处理遵循目标项目的模式（React 合成事件 vs Vue 原生事件）
+- 表单逻辑使用目标项目的表单方案（controlled vs uncontrolled）
+- 滚动/拖拽行为优先使用 CSS 方案，复杂交互使用 JS
+
+**动画代码**:
+- CSS 动画：使用目标项目的样式方案编写
+- JS 动画：优先使用目标项目已有的动画库
+- 无动画库时：用 CSS transition/keyframes 等效实现
+- 性能要求高时：使用 transform/opacity，避免 layout 触发
+
+**状态管理**:
+- 使用目标项目已有的状态方案
+- 无状态库时：用 useState/useRef 等局部状态
+- 复杂状态：建议用户引入状态库（需确认）
+
+**动态渲染**:
+- 条件渲染：遵循目标框架的语法（三元运算、v-if、{#if}）
+- 列表渲染：正确使用 key，优先虚拟滚动
+- 异步加载：使用目标框架的方案（Suspense、defineAsyncComponent）
+
+**响应式**:
+- 至少覆盖 mobile (< 640px)、tablet (640-1024px)、desktop (> 1024px)
+- 使用目标项目已有的断点值
+
+### 生成输出
+
+每个文件写入后，输出：
+```
+✓ [文件路径] - [做了什么改动]
+```
+
+## Phase 4: 质量检查
+
+生成完成后，逐项检查：
+
+- [ ] **响应式**: 至少 3 个断点，内容不溢出，文字可读
+- [ ] **语义化 HTML**: 使用 `<nav>`, `<main>`, `<section>`, `<article>` 等语义标签
+- [ ] **无障碍**: 图片有 alt、表单有关联 label、交互元素可键盘访问
+- [ ] **性能**: CSS 动画使用 transform/opacity 而非 top/left、图片有尺寸约束
+- [ ] **一致性**: 间距、颜色、字号与目标项目设计系统一致
+- [ ] **Anti-Slop**: 没有重复的渐变卡片、没有无意义的装饰线、布局有明确的视觉层级
+- [ ] **交互完整性**: 所有交互功能是否实现、事件处理是否正确绑定
+- [ ] **动画流畅度**: 无布局抖动、使用 transform/opacity、帧率稳定
+- [ ] **状态管理合理性**: 无过度集中或分散、异步状态正确处理
+- [ ] **动态渲染正确性**: key 使用正确、条件渲染逻辑完整、异步加载有 fallback
+
+## 多页面与多代理质量检查
+
+生成完成后，额外执行以下检查：
+
+- [ ] **tokens.json 验证**: tokens.json 符合 W3C Design Tokens Format 规范（每个 token 包含 `$type` 和 `$value`）
+- [ ] **Sub-component 集成检查**: 所有 SubAgent 生成的组件正确导入，无命名冲突，无状态覆盖
+- [ ] **多页面链接完整性**: 所有 `<a href>` 指向已生成的页面文件
+- [ ] **导航一致性**: 所有页面的 Header/Footer 链接列表完全一致
+- [ ] **当前页高亮**: 每个页面正确高亮自身对应的导航项
+- [ ] **数据模型一致性**: 生成的组件 Props 与 data_models 中的字段匹配
+- [ ] **共享上下文完整性**: shared-context.json 中的所有组件路径有效
+
+## 错误处理
+
+| 情况 | 处理 |
+|------|------|
+| 参考路径不存在 | 报错，让用户提供正确路径 |
+| 参考项目无前端代码 | 报错，说明不支持后端/纯 CLI 项目 |
+| URL 无法访问 | 尝试 WebFetch，失败则报错让用户提供本地路径 |
+| 技术栈完全不兼容 | 使用策略 C（灵感提取），明确告知用户适配后的差异 |
+| 目标项目无样式文件 | 提示用户是否创建新样式文件，确认后继续 |
+| 参考项目使用不常见的动画库 | 提取动画配置，尝试用 CSS 或目标项目已有方案等效实现 |
+| 状态管理方案不兼容 | 提取状态结构，用目标项目的方案重新实现 |
+| 复杂交互无法完全迁移 | 标注未迁移部分，提供 TODO 和实现建议 |
+| Three.js 自定义 Shader | 提取 GLSL 代码，适配到目标项目的渲染器 |
+| 3D 模型文件缺失 | 提取加载代码，提示用户手动拷贝模型文件 |
+| 粒子系统性能问题 | 优化粒子数量、使用 InstancedMesh、降低 Overdraw |
+| Electron IPC 通信复杂 | 提取 IPC 协议，生成对应的 main/preload/renderer 三端代码 |
+| 多窗口状态同步 | 提取窗口间通信模式，用 IPC + localStorage 双重同步 |
+| 自定义标题栏冲突 | 保留 -webkit-app-region 拖拽区域，适配目标平台窗口控制 |
+| Electron 打包配置 | 提取 electron-builder 配置，生成对应的打包脚本 |
+| 目标非 Electron 项目 | 将 Electron 特性降级为 Web 等效方案（如用 Browser Tab API 替代多窗口） |
+| 线上 URL 无法加载 | Playwright 超时重试 3 次，失败则报错让用户提供截图或本地源码 |
+| 线上站点有反爬/Cloudflare | 尝试设置 User-Agent 和等待 JS Challenge 通过，失败则降级为 WebFetch 静态分析 |
+| 视觉模型分析结果偏差 | 对关键区域（如颜色值、间距值）进行 Step C 的精确提取来校正 |
+| Computed Style 提取结果为空 | 可能是 Shadow DOM 或 iframe，尝试递归进入 shadowRoot 或 frame 提取 |
+| 动画状态变化不可见 | 有些 hover 效果依赖外部库或 JS 事件，记录 transition 属性即可，不强制抓取截图对比 |
+
+## 与其他 Skill 的协作边界
+
+| 场景 | 用这个 skill | 用其他 skill |
+|------|-------------|-------------|
+| 克隆完整界面+交互+动画+3D+音频+Electron | ✓ (v7.0) | - |
+| 只克隆静态布局 | ✓ (v7.0 策略 A/B/C) | - |
+| 只克隆 3D 场景 | ✓ (v7.0 Phase 1.9) | - |
+| 只克隆 Canvas 2D 效果 | ✓ (v7.0 Phase 1.10) | - |
+| 只克隆拖拽交互 | ✓ (v7.0 Phase 1.12) | - |
+| 只克隆音频可视化 | ✓ (v7.0 Phase 1.13) | - |
+| 只克隆 Electron 桌面端 | ✓ (v7.0 Phase 1.15) | - |
+| 从线上站点提取设计灵感 | ✓ (v7.0 Dynamic Extraction) | - |
+| 逆向工程 API 数据模型 | ✓ (v7.0 Step E) | - |
+| 导出 W3C 设计令牌 | ✓ (v7.0 Step C.2) | - |
+| 多页面站点克隆 | ✓ (v7.0 Step A.5) | - |
+| 多代理协作生成 | ✓ (v7.0 Phase 3) | - |
+| 对已有页面做精细视觉调整 | - | → `impeccable` |
+| 从零设计一个 premium 风格页面 | - | → `looks-expensive` |
+| 对已生成的布局做微调和 polish | 先生成，然后 | → `impeccable` 做精调 |
+| 需要 anti-slop 检查 | Phase 4 自带 | 可追加 `looks-expensive` |
+
+**协作流程**: 本 skill 生成布局+交互 → 用户确认结构和功能正确 → 按需加载其他 skill 做精调。

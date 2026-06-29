@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#08090a" />
+  <title>Log in — Linear</title>
+  <!-- 复用首页相同的字体导入 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;510;590;680&display=swap" rel="stylesheet" />
+  <style>
+    /* ========== 重置样式 ========== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 100%; scroll-behavior: smooth; }
+    body { font-family: var(--font-regular); background: var(--color-bg-primary); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; line-height: 1.5; }
+    a { color: inherit; text-decoration: none; cursor: pointer; }
+    ul, ol { list-style: none; }
+    img { max-width: 100%; display: block; flex-shrink: 0; }
+    button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    input { font: inherit; }
+
+    /* ========== 设计令牌（复用首页完全相同的变量） ========== */
+    :root {
+      /* 文本颜色 */
+      --color-text-primary: #f7f8f8;
+      --color-text-secondary: #d0d6e0;
+      --color-text-tertiary: #8a8f98;
+      --color-text-quaternary: #62666d;
+      /* 背景颜色 */
+      --color-bg-primary: #08090a;
+      --color-bg-secondary: #1c1c1f;
+      --color-bg-tertiary: #232326;
+      --color-bg-quaternary: #28282c;
+      --color-bg-panel: #0f1011;
+      --color-bg-translucent: rgba(255,255,255,0.05);
+      --color-bg-level-0: #08090a;
+      --color-bg-level-1: #0f1011;
+      --color-bg-level-2: #141516;
+      --color-bg-level-3: #191a1b;
+      /* 边框颜色 */
+      --color-border-primary: #23252a;
+      --color-border-secondary: #34343a;
+      --color-border-tertiary: #3e3e44;
+      --color-border-translucent: rgba(255,255,255,0.05);
+      --color-border-translucent-strong: rgba(255,255,255,0.08);
+      /* 品牌颜色 */
+      --color-brand-bg: #5e6ad2;
+      --color-brand-text: #fff;
+      --color-accent: #7170ff;
+      --color-accent-hover: #828fff;
+      --color-link-primary: #828fff;
+      --color-link-hover: #fff;
+      --color-orange: #fc7840;
+      --color-green: #27a644;
+      --color-red: #eb5757;
+      /* 按钮颜色 */
+      --color-button-invert-bg: #e5e5e6;
+      --color-button-invert-bg-hover: #fff;
+      /* 字体 */
+      --font-regular: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-monospace: "SF Mono", "Menlo", monospace;
+      --font-weight-light: 300;
+      --font-weight-normal: 400;
+      --font-weight-medium: 510;
+      --font-weight-semibold: 590;
+      --font-weight-bold: 680;
+      /* 字号 */
+      --text-tiny-size: 0.625rem;
+      --text-micro-size: 0.75rem;
+      --text-mini-size: 0.8125rem;
+      --text-small-size: 0.875rem;
+      --text-regular-size: 0.9375rem;
+      --text-large-size: 1.0625rem;
+      --title-1-size: 1.0625rem;
+      --title-2-size: 1.25rem;
+      --title-3-size: 1.5rem;
+      --title-4-size: 2rem;
+      --title-5-size: 2.5rem;
+      --title-6-size: 3rem;
+      --title-7-size: 3.5rem;
+      --title-8-size: 4rem;
+      --title-9-size: 4.5rem;
+      /* 行高 */
+      --text-regular-line-height: 1.6;
+      --text-small-line-height: 1.5;
+      --title-6-line-height: 1;
+      --title-8-line-height: 1.06;
+      --title-9-line-height: 1;
+      /* 字间距 */
+      --text-regular-letter-spacing: -0.011em;
+      --text-small-letter-spacing: -0.013em;
+      --title-6-letter-spacing: -0.022em;
+      --title-8-letter-spacing: -0.022em;
+      --title-9-letter-spacing: -0.022em;
+      /* 间距 */
+      --page-padding-inline: 24px;
+      --page-padding-block: 64px;
+      --page-max-width: 1024px;
+      --prose-max-width: 624px;
+      --homepage-outer-padding: 46px;
+      --homepage-max-width: calc(1344px + var(--homepage-outer-padding) * 2);
+      --homepage-padding-inset: 32px;
+      --header-height: 72px;
+      --header-blur: 20px;
+      --min-tap-size: 44px;
+      --grid-columns: 12;
+      /* 圆角 */
+      --radius-4: 4px;
+      --radius-8: 8px;
+      --radius-12: 12px;
+      --radius-16: 16px;
+      --radius-rounded: 9999px;
+      /* 阴影 */
+      --shadow-none: 0px 0px 0px transparent;
+      --shadow-low: 0px 2px 4px rgba(0,0,0,0.1);
+      --shadow-medium: 0px 4px 24px rgba(0,0,3,0.12);
+      --shadow-high: 0px 7px 32px rgba(0,0,0,0.35);
+      /* 边框 */
+      --border-hairline: 1px;
+      /* 层级 */
+      --layer-header: 100;
+      --layer-3: 3;
+      /* 动画速度 */
+      --speed-quickTransition: 0.1s;
+      --speed-regularTransition: 0.25s;
+      /* 缓动曲线 */
+      --ease-out-quint: cubic-bezier(.23, 1, .32, 1);
+      --ease-out-expo: cubic-bezier(.19, 1, .22, 1);
+      /* 焦点样式 */
+      --focus-ring-color: #5e6ad2;
+      --focus-ring-width: 2px;
+      --focus-ring-offset: 2px;
+    }
+
+    /* 响应式断点调整 */
+    @media (max-width: 1280px) { :root { --homepage-outer-padding: 10px; } }
+    @media (max-width: 1024px) { :root { --homepage-outer-padding: 28px; --homepage-padding-inset: 8px; } }
+    @media (max-width: 768px) { :root { --grid-columns: 8; } }
+    @media (max-width: 640px) { :root { --grid-columns: 4; --homepage-outer-padding: 16px; --header-height: 64px; } }
+
+    /* ========== 焦点环样式 ========== */
+    :focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); border-radius: 4px; }
+    :focus:not(:focus-visible) { outline: none; }
+
+    /* ========== 选中样式 ========== */
+    ::selection { color: var(--color-white, #fff); background: var(--color-brand-bg); }
+
+    /* ========== 登录页面整体布局 ========== */
+    .auth-page {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* ========== 左侧表单区域（占60%宽度） ========== */
+    .auth-form-side {
+      flex: 0 0 60%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 48px;
+      position: relative;
+    }
+
+    .auth-form-container {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    /* ========== Linear 标志 ========== */
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: var(--font-weight-semibold);
+      font-size: 1.125rem;
+      margin-bottom: 48px;
+      color: var(--color-text-primary);
+    }
+
+    .auth-logo svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    /* ========== 选项卡切换器（登录/注册） ========== */
+    .auth-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--color-border-primary);
+    }
+
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      font-size: var(--text-regular-size);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-tertiary);
+      cursor: pointer;
+      position: relative;
+      transition: color var(--speed-regularTransition);
+      background: none;
+      border: none;
+    }
+
+    .auth-tab::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: transparent;
+      border-radius: 1px;
+      transition: background var(--speed-regularTransition);
+    }
+
+    .auth-tab.active {
+      color: var(--color-text-primary);
+    }
+
+    .auth-tab.active::after {
+      background: var(--color-text-primary);
+    }
+
+    @media (any-hover: hover) {
+      .auth-tab:not(.active):hover {
+        color: var(--color-text-secondary);
+      }
+    }
+
+    /* ========== 表单区域 ========== */
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .auth-form.hidden {
+      display: none;
+    }
+
+    /* ========== 表单输入框 ========== */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: var(--text-small-size);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--color-bg-tertiary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-8);
+      padding: 12px 16px;
+      color: var(--color-text-primary);
+      font-size: var(--text-regular-size);
+      transition: border-color var(--speed-regularTransition), background var(--speed-regularTransition);
+      outline: none;
+    }
+
+    .form-input::placeholder {
+      color: var(--color-text-quaternary);
+    }
+
+    .form-input:focus {
+      border-color: var(--color-brand-bg);
+    }
+
+    @media (any-hover: hover) {
+      .form-input:hover {
+        border-color: var(--color-border-secondary);
+      }
+    }
+
+    /* ========== 密码输入框容器（含显示/隐藏按钮） ========== */
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper .form-input {
+      padding-right: 48px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 4px;
+      color: var(--color-text-quaternary);
+      transition: color var(--speed-quickTransition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .password-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    @media (any-hover: hover) {
+      .password-toggle:hover {
+        color: var(--color-text-tertiary);
+      }
+    }
+
+    /* ========== 记住我 + 忘记密码行 ========== */
+    .form-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      border-radius: var(--radius-4);
+      border: 1px solid var(--color-border-secondary);
+      background: var(--color-bg-tertiary);
+      cursor: pointer;
+      accent-color: var(--color-brand-bg);
+    }
+
+    .checkbox-label {
+      font-size: var(--text-small-size);
+      color: var(--color-text-secondary);
+      user-select: none;
+    }
+
+    .forgot-link {
+      font-size: var(--text-small-size);
+      color: var(--color-text-tertiary);
+      transition: color var(--speed-regularTransition);
+    }
+
+    @media (any-hover: hover) {
+      .forgot-link:hover {
+        color: var(--color-text-primary);
+      }
+    }
+
+    /* ========== 主要按钮 ========== */
+    .btn-submit {
+      width: 100%;
+      background: var(--color-button-invert-bg);
+      color: var(--color-bg-primary);
+      padding: 12px 16px;
+      border-radius: var(--radius-8);
+      font-size: var(--text-regular-size);
+      font-weight: var(--font-weight-medium);
+      border: none;
+      cursor: pointer;
+      transition: background var(--speed-quickTransition);
+    }
+
+    @media (any-hover: hover) {
+      .btn-submit:hover {
+        background: var(--color-button-invert-bg-hover);
+      }
+    }
+
+    /* ========== 分割线 ========== */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 4px 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--color-border-primary);
+    }
+
+    .divider-text {
+      font-size: var(--text-small-size);
+      color: var(--color-text-quaternary);
+      white-space: nowrap;
+    }
+
+    /* ========== 社交登录按钮组 ========== */
+    .social-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-social {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: var(--radius-8);
+      border: 1px solid var(--color-border-tertiary);
+      background: transparent;
+      color: var(--color-text-secondary);
+      font-size: var(--text-small-size);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+      transition: border-color var(--speed-regularTransition), background var(--speed-regularTransition), color var(--speed-regularTransition);
+    }
+
+    .btn-social svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    @media (any-hover: hover) {
+      .btn-social:hover {
+        border-color: var(--color-border-secondary);
+        background: var(--color-bg-translucent);
+        color: var(--color-text-primary);
+      }
+    }
+
+    /* ========== 注册表单额外间距 ========== */
+    .signup-form .form-group {
+      gap: 6px;
+    }
+
+    /* ========== 条款文本 ========== */
+    .terms-text {
+      font-size: var(--text-small-size);
+      color: var(--color-text-quaternary);
+      text-align: center;
+      line-height: 1.5;
+      margin-top: 4px;
+    }
+
+    .terms-text a {
+      color: var(--color-text-tertiary);
+      text-decoration: underline;
+      text-decoration-color: var(--color-border-tertiary);
+      text-underline-offset: 2px;
+    }
+
+    @media (any-hover: hover) {
+      .terms-text a:hover {
+        color: var(--color-text-primary);
+        text-decoration-color: var(--color-text-tertiary);
+      }
+    }
+
+    /* ========== 右侧装饰面板 ========== */
+    .auth-decorative-side {
+      flex: 0 0 40%;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-left: 1px solid var(--color-border-primary);
+    }
+
+    /* 渐变背景 */
+    .auth-decorative-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--color-brand-bg) 0%, #1a1a2e 50%, var(--color-bg-primary) 100%);
+    }
+
+    /* 细粒度纹理覆盖层 */
+    .auth-decorative-grain {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.06;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 128px 128px;
+      z-index: 1;
+    }
+
+    /* 网格图案 */
+    .auth-decorative-grid {
+      position: absolute;
+      inset: 0;
+      opacity: 0.08;
+      background-image:
+        linear-gradient(var(--color-text-primary) 1px, transparent 1px),
+        linear-gradient(90deg, var(--color-text-primary) 1px, transparent 1px);
+      background-size: 48px 48px;
+      z-index: 0;
+    }
+
+    /* 装饰面板内容 */
+    .auth-decorative-content {
+      position: relative;
+      z-index: 2;
+      padding: 48px;
+      text-align: center;
+      max-width: 400px;
+    }
+
+    .auth-decorative-quote {
+      font-size: var(--title-3-size);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      line-height: 1.33;
+      letter-spacing: -0.012em;
+      margin-bottom: 24px;
+      opacity: 0.95;
+    }
+
+    .auth-decorative-author {
+      font-size: var(--text-regular-size);
+      color: var(--color-text-secondary);
+      opacity: 0.8;
+    }
+
+    .auth-decorative-role {
+      font-size: var(--text-small-size);
+      color: var(--color-text-quaternary);
+      margin-top: 4px;
+    }
+
+    /* 装饰面板底部品牌标识 */
+    .auth-decorative-brand {
+      position: absolute;
+      bottom: 40px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      z-index: 2;
+    }
+
+    .auth-decorative-brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: var(--text-small-size);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-tertiary);
+      opacity: 0.6;
+    }
+
+    .auth-decorative-brand-logo svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* ========== 响应式：移动端隐藏装饰面板 ========== */
+    @media (max-width: 1024px) {
+      .auth-decorative-side {
+        display: none;
+      }
+      .auth-form-side {
+        flex: 1 1 100%;
+        padding: 48px 32px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .auth-form-side {
+        padding: 32px 24px;
+      }
+      .auth-form-container {
+        max-width: 100%;
+      }
+      .social-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 登录/注册页面主体 -->
+  <main class="auth-page">
+
+    <!-- ===== 左侧：表单区域 ===== -->
+    <div class="auth-form-side">
+      <div class="auth-form-container">
+
+        <!-- Linear 标志 -->
+        <a href="index.html" class="auth-logo">
+          <svg width="28" height="28" viewBox="0 0 100 100" fill="none">
+            <path d="M50 5L95 27.5V72.5L50 95L5 72.5V27.5L50 5Z" fill="var(--color-brand-bg)" opacity="0.15"/>
+            <path d="M50 15L85 32.5V67.5L50 85L15 67.5V32.5L50 15Z" stroke="var(--color-text-primary)" stroke-width="2" fill="none"/>
+            <path d="M35 50L45 60L65 40" stroke="var(--color-text-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          Linear
+        </a>
+
+        <!-- 登录/注册选项卡 -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login" onclick="switchTab('login')">Log in</button>
+          <button class="auth-tab" data-tab="signup" onclick="switchTab('signup')">Sign up</button>
+        </div>
+
+        <!-- 登录表单 -->
+        <form class="auth-form" id="loginForm" onsubmit="return false;">
+          <!-- 邮箱输入框 -->
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email</label>
+            <input class="form-input" type="email" id="login-email" placeholder="you@company.com" autocomplete="email" />
+          </div>
+
+          <!-- 密码输入框（含显示/隐藏切换） -->
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <div class="password-wrapper">
+              <input class="form-input" type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password" />
+              <button type="button" class="password-toggle" onclick="togglePassword('login-password', this)" aria-label="Toggle password visibility">
+                <!-- 显示图标（眼睛） -->
+                <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <!-- 隐藏图标（划线眼睛） -->
+                <svg class="icon-hide" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- 记住我 + 忘记密码 -->
+          <div class="form-row">
+            <label class="checkbox-wrapper">
+              <input type="checkbox" id="remember-me" />
+              <span class="checkbox-label">Remember me</span>
+            </label>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <!-- 登录按钮 -->
+          <button type="submit" class="btn-submit">Log in</button>
+
+          <!-- 分割线 -->
+          <div class="divider">
+            <span class="divider-line"></span>
+            <span class="divider-text">or continue with</span>
+            <span class="divider-line"></span>
+          </div>
+
+          <!-- 社交登录按钮 -->
+          <div class="social-buttons">
+            <!-- Google 登录按钮 -->
+            <button type="button" class="btn-social">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Google
+            </button>
+            <!-- GitHub 登录按钮 -->
+            <button type="button" class="btn-social">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+              </svg>
+              GitHub
+            </button>
+            <!-- GitLab 登录按钮 -->
+            <button type="button" class="btn-social">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.867 0L16.418 9.45H7.582L4.918 1.263a.455.455 0 0 0-.867 0L1.387 9.452.045 13.587c-.323 1.312.137 2.537 1.167 3.263L12 23.952l10.788-7.102c1.03-.726 1.489-1.951 1.167-3.263z" fill="#E24329"/>
+                <path d="M1.387 9.452L12 23.952l10.788-7.102c1.03-.726 1.489-1.951 1.167-3.263L22.613 9.45H1.387z" fill="#FC6D26"/>
+                <path d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.867 0L16.418 9.45H7.582L4.918 1.263a.455.455 0 0 0-.867 0L1.387 9.452.045 13.587c-.323 1.312.137 2.537 1.167 3.263L12 23.952V9.45H1.387z" fill="#FCA326"/>
+              </svg>
+              GitLab
+            </button>
+          </div>
+        </form>
+
+        <!-- 注册表单（默认隐藏） -->
+        <form class="auth-form signup-form hidden" id="signupForm" onsubmit="return false;">
+          <!-- 全名输入框 -->
+          <div class="form-group">
+            <label class="form-label" for="signup-name">Full name</label>
+            <input class="form-input" type="text" id="signup-name" placeholder="Your full name" autocomplete="name" />
+          </div>
+
+          <!-- 工作邮箱输入框 -->
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Work email</label>
+            <input class="form-input" type="email" id="signup-email" placeholder="you@company.com" autocomplete="email" />
+          </div>
+
+          <!-- 密码输入框（含显示/隐藏切换） -->
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password</label>
+            <div class="password-wrapper">
+              <input class="form-input" type="password" id="signup-password" placeholder="Create a password" autocomplete="new-password" />
+              <button type="button" class="password-toggle" onclick="togglePassword('signup-password', this)" aria-label="Toggle password visibility">
+                <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="icon-hide" style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- 创建账户按钮 -->
+          <button type="submit" class="btn-submit" style="margin-top: 8px;">Create account</button>
+
+          <!-- 分割线 -->
+          <div class="divider">
+            <span class="divider-line"></span>
+            <span class="divider-text">or continue with</span>
+            <span class="divider-line"></span>
+          </div>
+
+          <!-- 社交登录按钮 -->
+          <div class="social-buttons">
+            <button type="button" class="btn-social">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              Google
+            </button>
+            <button type="button" class="btn-social">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+              </svg>
+              GitHub
+            </button>
+            <button type="button" class="btn-social">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.867 0L16.418 9.45H7.582L4.918 1.263a.455.455 0 0 0-.867 0L1.387 9.452.045 13.587c-.323 1.312.137 2.537 1.167 3.263L12 23.952l10.788-7.102c1.03-.726 1.489-1.951 1.167-3.263z" fill="#E24329"/>
+                <path d="M1.387 9.452L12 23.952l10.788-7.102c1.03-.726 1.489-1.951 1.167-3.263L22.613 9.45H1.387z" fill="#FC6D26"/>
+                <path d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.867 0L16.418 9.45H7.582L4.918 1.263a.455.455 0 0 0-.867 0L1.387 9.452.045 13.587c-.323 1.312.137 2.537 1.167 3.263L12 23.952V9.45H1.387z" fill="#FCA326"/>
+              </svg>
+              GitLab
+            </button>
+          </div>
+
+          <!-- 条款文本 -->
+          <p class="terms-text">By signing up, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a></p>
+        </form>
+
+      </div>
+    </div>
+
+    <!-- ===== 右侧：装饰面板 ===== -->
+    <div class="auth-decorative-side">
+      <!-- 渐变背景 -->
+      <div class="auth-decorative-bg"></div>
+      <!-- 网格图案 -->
+      <div class="auth-decorative-grid"></div>
+      <!-- 粒子纹理覆盖 -->
+      <div class="auth-decorative-grain"></div>
+      <!-- 标语文字 -->
+      <div class="auth-decorative-content">
+        <p class="auth-decorative-quote">"Linear is the most thoughtfully designed product management tool I've ever used."</p>
+        <p class="auth-decorative-author">Sarah Chen</p>
+        <p class="auth-decorative-role">VP Engineering, Vercel</p>
+      </div>
+      <!-- 底部品牌标识 -->
+      <div class="auth-decorative-brand">
+        <span class="auth-decorative-brand-logo">
+          <svg viewBox="0 0 100 100" fill="none">
+            <path d="M50 5L95 27.5V72.5L50 95L5 72.5V27.5L50 5Z" fill="currentColor" opacity="0.15"/>
+            <path d="M50 15L85 32.5V67.5L50 85L15 67.5V32.5L50 15Z" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M35 50L45 60L65 40" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          Linear
+        </span>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- JavaScript 交互逻辑 -->
+  <script>
+    /**
+     * 切换登录/注册选项卡
+     * @param {string} tab - 目标选项卡名称（'login' 或 'signup'）
+     */
+    function switchTab(tab) {
+      // 更新选项卡激活状态
+      document.querySelectorAll('.auth-tab').forEach(function(t) {
+        t.classList.toggle('active', t.dataset.tab === tab);
+      });
+
+      // 切换显示对应表单
+      var loginForm = document.getElementById('loginForm');
+      var signupForm = document.getElementById('signupForm');
+
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+      } else {
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+      }
+    }
+
+    /**
+     * 切换密码输入框的显示/隐藏状态
+     * @param {string} inputId - 密码输入框的 ID
+     * @param {HTMLElement} btn - 切换按钮元素
+     */
+    function togglePassword(inputId, btn) {
+      var input = document.getElementById(inputId);
+      var showIcon = btn.querySelector('.icon-show');
+      var hideIcon = btn.querySelector('.icon-hide');
+
+      if (input.type === 'password') {
+        // 切换为明文显示
+        input.type = 'text';
+        showIcon.style.display = 'none';
+        hideIcon.style.display = 'block';
+      } else {
+        // 切换为密文隐藏
+        input.type = 'password';
+        showIcon.style.display = 'block';
+        hideIcon.style.display = 'none';
+      }
+    }
+  </script>
+
+</body>
+</html>

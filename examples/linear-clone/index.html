@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#08090a" />
+  <title>Linear Clone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;510;590;680&display=swap" rel="stylesheet" />
+  <style>
+    /* ========== RESET ========== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 100%; scroll-behavior: smooth; scroll-padding-top: calc(var(--header-height) + 36px); }
+    body { font-family: var(--font-regular); background: var(--color-bg-primary); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; line-height: 1.5; }
+    a { color: inherit; text-decoration: none; cursor: pointer; }
+    ul, ol { list-style: none; }
+    img { max-width: 100%; display: block; flex-shrink: 0; }
+    button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+    /* ========== DESIGN TOKENS (Dark Theme) ========== */
+    :root {
+      /* Colors - Text */
+      --color-text-primary: #f7f8f8;
+      --color-text-secondary: #d0d6e0;
+      --color-text-tertiary: #8a8f98;
+      --color-text-quaternary: #62666d;
+      /* Colors - Background */
+      --color-bg-primary: #08090a;
+      --color-bg-secondary: #1c1c1f;
+      --color-bg-tertiary: #232326;
+      --color-bg-quaternary: #28282c;
+      --color-bg-panel: #0f1011;
+      --color-bg-translucent: rgba(255,255,255,0.05);
+      --color-bg-level-0: #08090a;
+      --color-bg-level-1: #0f1011;
+      --color-bg-level-2: #141516;
+      --color-bg-level-3: #191a1b;
+      /* Colors - Border */
+      --color-border-primary: #23252a;
+      --color-border-secondary: #34343a;
+      --color-border-tertiary: #3e3e44;
+      --color-border-translucent: rgba(255,255,255,0.05);
+      --color-border-translucent-strong: rgba(255,255,255,0.08);
+      /* Colors - Brand */
+      --color-brand-bg: #5e6ad2;
+      --color-brand-text: #fff;
+      --color-accent: #7170ff;
+      --color-accent-hover: #828fff;
+      --color-link-primary: #828fff;
+      --color-link-hover: #fff;
+      --color-orange: #fc7840;
+      --color-green: #27a644;
+      --color-red: #eb5757;
+      /* Colors - Button */
+      --color-button-invert-bg: #e5e5e6;
+      --color-button-invert-bg-hover: #fff;
+      /* Typography */
+      --font-regular: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-monospace: "SF Mono", "Menlo", monospace;
+      --font-weight-light: 300;
+      --font-weight-normal: 400;
+      --font-weight-medium: 510;
+      --font-weight-semibold: 590;
+      --font-weight-bold: 680;
+      /* Font Sizes */
+      --text-tiny-size: 0.625rem;
+      --text-micro-size: 0.75rem;
+      --text-mini-size: 0.8125rem;
+      --text-small-size: 0.875rem;
+      --text-regular-size: 0.9375rem;
+      --text-large-size: 1.0625rem;
+      --title-1-size: 1.0625rem;
+      --title-2-size: 1.25rem;
+      --title-3-size: 1.5rem;
+      --title-4-size: 2rem;
+      --title-5-size: 2.5rem;
+      --title-6-size: 3rem;
+      --title-7-size: 3.5rem;
+      --title-8-size: 4rem;
+      --title-9-size: 4.5rem;
+      /* Line Heights */
+      --text-regular-line-height: 1.6;
+      --text-small-line-height: 1.5;
+      --title-6-line-height: 1;
+      --title-8-line-height: 1.06;
+      --title-9-line-height: 1;
+      /* Letter Spacings */
+      --text-regular-letter-spacing: -0.011em;
+      --text-small-letter-spacing: -0.013em;
+      --title-6-letter-spacing: -0.022em;
+      --title-8-letter-spacing: -0.022em;
+      --title-9-letter-spacing: -0.022em;
+      /* Spacing */
+      --page-padding-inline: 24px;
+      --page-padding-block: 64px;
+      --page-max-width: 1024px;
+      --prose-max-width: 624px;
+      --homepage-outer-padding: 46px;
+      --homepage-max-width: calc(1344px + var(--homepage-outer-padding) * 2);
+      --homepage-padding-inset: 32px;
+      --header-height: 72px;
+      --header-blur: 20px;
+      --min-tap-size: 44px;
+      --grid-columns: 12;
+      /* Radius */
+      --radius-4: 4px;
+      --radius-8: 8px;
+      --radius-12: 12px;
+      --radius-16: 16px;
+      --radius-rounded: 9999px;
+      /* Shadows */
+      --shadow-none: 0px 0px 0px transparent;
+      --shadow-low: 0px 2px 4px rgba(0,0,0,0.1);
+      --shadow-medium: 0px 4px 24px rgba(0,0,3,0.12);
+      --shadow-high: 0px 7px 32px rgba(0,0,0,0.35);
+      /* Borders */
+      --border-hairline: 1px;
+      /* Layers */
+      --layer-header: 100;
+      --layer-3: 3;
+      /* Speed */
+      --speed-quickTransition: 0.1s;
+      --speed-regularTransition: 0.25s;
+      /* Easing */
+      --ease-out-quint: cubic-bezier(.23, 1, .32, 1);
+      --ease-out-expo: cubic-bezier(.19, 1, .22, 1);
+      /* Focus */
+      --focus-ring-color: #5e6ad2;
+      --focus-ring-width: 2px;
+      --focus-ring-offset: 2px;
+    }
+
+    @media (max-width: 1280px) { :root { --homepage-outer-padding: 10px; } }
+    @media (max-width: 1024px) { :root { --homepage-outer-padding: 28px; --homepage-padding-inset: 8px; } }
+    @media (max-width: 768px) { :root { --grid-columns: 8; } }
+    @media (max-width: 640px) { :root { --grid-columns: 4; --homepage-outer-padding: 16px; --header-height: 64px; } }
+
+    /* ========== FOCUS ========== */
+    :focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); border-radius: 4px; }
+    :focus:not(:focus-visible) { outline: none; }
+
+    /* ========== SELECTION ========== */
+    ::selection { color: var(--color-white, #fff); background: var(--color-brand-bg); }
+
+    /* ========== TYPOGRAPHY UTILITIES ========== */
+    .title-9 { font-size: var(--title-9-size); line-height: var(--title-9-line-height); letter-spacing: var(--title-9-letter-spacing); font-weight: var(--font-weight-semibold); }
+    .title-8 { font-size: var(--title-8-size); line-height: var(--title-8-line-height); letter-spacing: var(--title-8-letter-spacing); font-weight: var(--font-weight-semibold); }
+    .title-7 { font-size: var(--title-7-size); line-height: 1.1; letter-spacing: -0.022em; font-weight: var(--font-weight-semibold); }
+    .title-6 { font-size: var(--title-6-size); line-height: var(--title-6-line-height); letter-spacing: var(--title-6-letter-spacing); font-weight: var(--font-weight-semibold); }
+    .title-5 { font-size: var(--title-5-size); line-height: 1.1; letter-spacing: -0.022em; font-weight: var(--font-weight-semibold); }
+    .title-4 { font-size: var(--title-4-size); line-height: 1.125; letter-spacing: -0.022em; font-weight: var(--font-weight-semibold); }
+    .title-3 { font-size: var(--title-3-size); line-height: 1.33; letter-spacing: -0.012em; font-weight: var(--font-weight-semibold); }
+    .title-2 { font-size: var(--title-2-size); line-height: 1.33; letter-spacing: -0.012em; font-weight: var(--font-weight-semibold); }
+    .text-body { font-size: var(--text-regular-size); line-height: var(--text-regular-line-height); letter-spacing: var(--text-regular-letter-spacing); }
+    .text-secondary { color: var(--color-text-secondary); }
+    .text-tertiary { color: var(--color-text-tertiary); }
+    .text-quaternary { color: var(--color-text-quaternary); }
+    .text-balance { text-wrap: balance; }
+    .text-pretty { text-wrap: pretty; }
+
+    @media (max-width: 1024px) {
+      .title-9 { font-size: var(--title-7-size); }
+      .title-8 { font-size: var(--title-7-size); }
+      .title-7 { font-size: var(--title-5-size); }
+      .title-6 { font-size: var(--title-5-size); }
+    }
+    @media (max-width: 640px) {
+      .title-9 { font-size: var(--title-5-size); }
+      .title-8 { font-size: var(--title-5-size); }
+      .title-6 { font-size: var(--title-2-size); }
+      .title-5 { font-size: var(--title-3-size); }
+      .title-4 { font-size: var(--title-2-size); }
+    }
+
+    /* ========== HEADER ========== */
+    .header {
+      position: sticky; top: 0; z-index: var(--layer-header);
+      height: var(--header-height);
+      border-bottom: 1px solid var(--color-border-translucent-strong);
+      backdrop-filter: saturate(1.8) blur(var(--header-blur));
+      -webkit-backdrop-filter: saturate(1.8) blur(var(--header-blur));
+      background: rgba(8,9,10,0.8);
+      display: flex; align-items: center;
+    }
+    .header-inner {
+      max-width: var(--homepage-max-width);
+      width: 100%; margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-nav { display: flex; align-items: center; gap: 32px; }
+    .header-logo { display: flex; align-items: center; gap: 10px; font-weight: var(--font-weight-semibold); font-size: 1rem; }
+    .header-logo svg { width: 22px; height: 22px; }
+    .header-links { display: flex; gap: 28px; }
+    .header-links a {
+      font-size: var(--text-small-size); font-weight: var(--font-weight-medium);
+      color: var(--color-text-tertiary);
+      transition: color var(--speed-regularTransition);
+    }
+    @media (any-hover: hover) { .header-links a:hover { color: var(--color-text-primary); } }
+    .header-actions { display: flex; align-items: center; gap: 16px; }
+    .header-actions a {
+      font-size: var(--text-small-size); font-weight: var(--font-weight-medium);
+      color: var(--color-text-tertiary);
+      transition: color var(--speed-regularTransition);
+    }
+    @media (any-hover: hover) { .header-actions a:hover { color: var(--color-text-primary); } }
+    .btn-primary {
+      background: var(--color-button-invert-bg); color: var(--color-bg-primary);
+      padding: 8px 16px; border-radius: var(--radius-8);
+      font-size: var(--text-small-size); font-weight: var(--font-weight-medium);
+      transition: background var(--speed-quickTransition);
+    }
+    @media (any-hover: hover) { .btn-primary:hover { background: var(--color-button-invert-bg-hover); } }
+    @media (max-width: 768px) { .header-links, .header-actions a:not(.btn-primary) { display: none; } }
+
+    /* ========== HERO ========== */
+    .hero {
+      padding: 120px 0 80px;
+      text-align: center;
+      position: relative;
+    }
+    .hero-inner {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+    }
+    .hero h1 { margin-bottom: 24px; }
+    .hero p {
+      font-size: var(--text-large-size); color: var(--color-text-secondary);
+      max-width: 520px; margin: 0 auto 40px;
+      text-wrap: balance; line-height: 1.6;
+    }
+    .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .hero-cta .btn-primary { padding: 12px 24px; font-size: var(--text-regular-size); border-radius: var(--radius-8); }
+    .btn-secondary {
+      background: transparent; color: var(--color-text-secondary);
+      padding: 12px 24px; border-radius: var(--radius-8);
+      border: 1px solid var(--color-border-tertiary);
+      font-size: var(--text-regular-size); font-weight: var(--font-weight-medium);
+      transition: border-color var(--speed-regularTransition), color var(--speed-regularTransition);
+    }
+    @media (any-hover: hover) { .btn-secondary:hover { border-color: var(--color-text-tertiary); color: var(--color-text-primary); } }
+    @media (max-width: 640px) { .hero { padding: 80px 0 48px; } .hero h1 br { display: none; } }
+
+    /* ========== GRID DOT ANIMATION (5x5) ========== */
+    .hero-visual {
+      margin-top: 64px; display: flex; justify-content: center;
+    }
+    .grid-dots {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+    }
+    .grid-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: var(--color-text-primary);
+      opacity: 0.3;
+    }
+    .grid-dot.active { opacity: 1; }
+
+    /* ========== MAIN LAYOUT ========== */
+    .main-content {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+    }
+
+    /* ========== BENEFIT SECTION ========== */
+    .benefit {
+      display: grid; grid-template-columns: 1fr 1.5fr; gap: 64px;
+      padding: 80px 0;
+      align-items: center;
+    }
+    .benefit:nth-child(even) { grid-template-columns: 1.5fr 1fr; }
+    .benefit:nth-child(even) .benefit-text { order: 2; }
+    .benefit:nth-child(even) .benefit-visual { order: 1; }
+    .benefit-text { max-width: 420px; }
+    .benefit-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: var(--text-small-size); font-weight: var(--font-weight-medium);
+      color: var(--color-text-tertiary); margin-bottom: 16px;
+    }
+    .benefit-label .version {
+      font-variant-numeric: tabular-nums; font-feature-settings: "ss01";
+      color: var(--color-text-quaternary);
+    }
+    .benefit-label .arrow {
+      transition: transform var(--speed-quickTransition);
+    }
+    @media (any-hover: hover) { .benefit-label:hover .arrow { transform: translateX(4px); } }
+    .benefit h2 { margin-bottom: 16px; text-wrap: balance; }
+    .benefit p {
+      font-size: var(--text-regular-size); line-height: 1.6;
+      color: var(--color-text-secondary); text-wrap: pretty;
+    }
+    .benefit-visual {
+      aspect-ratio: 16/10; border-radius: var(--radius-12);
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+    }
+    .benefit-visual-inner {
+      width: 100%; height: 100%; position: relative;
+    }
+
+    /* Grain overlay */
+    .grain {
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: var(--layer-3);
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 128px 128px;
+    }
+
+    /* ========== MOCK UI PANELS ========== */
+    .mock-panel {
+      position: absolute; inset: 20px;
+      background: var(--color-bg-level-1);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-8);
+      padding: 20px;
+      box-shadow: var(--shadow-medium);
+    }
+    .mock-sidebar {
+      position: absolute; left: 20px; top: 20px; bottom: 20px;
+      width: 200px;
+      background: var(--color-bg-level-2);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-8);
+      padding: 16px;
+    }
+    @media (max-width: 768px) { .mock-sidebar { width: 120px; } }
+    .mock-sidebar-item {
+      height: 8px; border-radius: 4px; margin-bottom: 10px;
+      background: var(--color-border-tertiary);
+    }
+    .mock-sidebar-item:nth-child(1) { width: 60%; background: var(--color-brand-bg); opacity: 0.6; }
+    .mock-sidebar-item:nth-child(2) { width: 80%; }
+    .mock-sidebar-item:nth-child(3) { width: 50%; }
+    .mock-sidebar-item:nth-child(4) { width: 70%; }
+    .mock-sidebar-item:nth-child(5) { width: 40%; }
+
+    .mock-content { margin-left: 220px; padding: 20px; }
+    @media (max-width: 768px) { .mock-content { margin-left: 140px; } }
+    .mock-content-header { display: flex; gap: 8px; margin-bottom: 16px; }
+    .mock-pill {
+      height: 6px; border-radius: 3px; background: var(--color-border-tertiary);
+    }
+    .mock-pill:nth-child(1) { width: 80px; background: var(--color-brand-bg); opacity: 0.5; }
+    .mock-pill:nth-child(2) { width: 60px; }
+    .mock-pill:nth-child(3) { width: 100px; }
+    .mock-rows { display: flex; flex-direction: column; gap: 8px; }
+    .mock-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; border-radius: var(--radius-4);
+      background: var(--color-bg-level-3);
+    }
+    .mock-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .mock-dot.green { background: var(--color-green); }
+    .mock-dot.yellow { background: #f0bf00; }
+    .mock-dot.blue { background: var(--color-brand-bg); }
+    .mock-line { height: 5px; border-radius: 3px; background: var(--color-border-tertiary); flex: 1; }
+    .mock-line.short { max-width: 120px; }
+    .mock-line.medium { max-width: 200px; }
+
+    /* ========== PLAN SECTION (Timeline) ========== */
+    .mock-timeline { padding: 20px 24px; }
+    .mock-timeline-header {
+      display: flex; gap: 12px; margin-bottom: 20px; align-items: center;
+    }
+    .mock-timeline-title { height: 8px; width: 140px; border-radius: 4px; background: var(--color-text-tertiary); }
+    .mock-timeline-track {
+      position: relative; height: 4px; background: var(--color-border-primary);
+      border-radius: 2px; margin: 24px 0;
+    }
+    .mock-timeline-progress {
+      position: absolute; left: 0; top: 0; height: 100%;
+      width: 65%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--color-brand-bg), var(--color-accent));
+    }
+    .mock-timeline-markers { display: flex; justify-content: space-between; margin-top: 8px; }
+    .mock-timeline-marker {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--color-bg-primary); border: 2px solid var(--color-border-tertiary);
+    }
+    .mock-timeline-marker.done { border-color: var(--color-brand-bg); background: var(--color-brand-bg); }
+    .mock-timeline-marker.current { border-color: var(--color-accent); background: var(--color-accent); box-shadow: 0 0 0 4px rgba(113,112,255,0.2); }
+    .mock-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 20px; }
+    .mock-card {
+      background: var(--color-bg-level-3); border-radius: var(--radius-8);
+      padding: 14px; border: 1px solid var(--color-border-primary);
+    }
+    .mock-card-line { height: 5px; border-radius: 3px; background: var(--color-border-tertiary); margin-bottom: 8px; }
+    .mock-card-line:last-child { margin-bottom: 0; width: 60%; }
+
+    /* ========== BUILD SECTION (AI Agents) ========== */
+    .mock-agents { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .mock-agent-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px; border-radius: var(--radius-8);
+      background: var(--color-bg-level-3);
+      border: 1px solid var(--color-border-primary);
+    }
+    .mock-agent-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-brand-bg), var(--color-accent));
+      flex-shrink: 0;
+    }
+    .mock-agent-lines { flex: 1; }
+    .mock-agent-line { height: 5px; border-radius: 3px; background: var(--color-border-tertiary); margin-bottom: 6px; }
+    .mock-agent-line:last-child { margin-bottom: 0; width: 40%; }
+    .mock-agent-status {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .mock-agent-status.active { background: var(--color-green); box-shadow: 0 0 6px rgba(39,166,68,0.4); }
+    .mock-agent-status.idle { background: var(--color-text-quaternary); }
+
+    /* ========== CODE DIFF SECTION ========== */
+    .mock-diff { padding: 20px; font-family: var(--font-monospace); font-size: 13px; line-height: 1.7; }
+    .mock-diff-line { padding: 1px 8px; border-radius: 3px; }
+    .mock-diff-line.removed { background: rgba(235,87,87,0.08); color: #f87171; }
+    .mock-diff-line.added { background: rgba(39,166,68,0.08); color: #4ade80; }
+    .mock-diff-line .keyword { color: #c084fc; }
+    .mock-diff-line .string { color: #86efac; }
+    .mock-diff-line .comment { color: var(--color-text-quaternary); }
+    .mock-diff-line .func { color: #93c5fd; }
+
+    /* ========== MONITOR SECTION (Analytics) ========== */
+    .mock-analytics { padding: 20px; }
+    .mock-chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding-top: 20px; }
+    .mock-bar {
+      flex: 1; border-radius: 3px 3px 0 0;
+      background: var(--color-border-tertiary);
+      transition: background 0.2s;
+      position: relative;
+    }
+    .mock-bar:nth-child(odd) { background: var(--color-brand-bg); opacity: 0.4; }
+    .mock-bar:nth-child(even) { background: var(--color-brand-bg); opacity: 0.7; }
+    .mock-bar:nth-child(7), .mock-bar:nth-child(8) { opacity: 1; }
+    .mock-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; }
+    .mock-stat-value { font-size: 1.5rem; font-weight: var(--font-weight-semibold); color: var(--color-text-primary); margin-bottom: 4px; }
+    .mock-stat-label { font-size: var(--text-small-size); color: var(--color-text-tertiary); }
+
+    /* ========== LOGOS SECTION ========== */
+    .logos-section {
+      padding: 80px 0; overflow: hidden;
+      border-top: 1px solid var(--color-border-primary);
+      border-bottom: 1px solid var(--color-border-primary);
+    }
+    .logos-inner {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+    }
+    .logos-label {
+      text-align: center; font-size: var(--text-small-size);
+      color: var(--color-text-quaternary); text-transform: uppercase;
+      letter-spacing: 0.08em; font-weight: var(--font-weight-medium);
+      margin-bottom: 40px;
+    }
+    .logos-track {
+      display: flex; gap: 64px; align-items: center; justify-content: center;
+      flex-wrap: wrap;
+    }
+    .logo-item {
+      font-size: var(--text-regular-size); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-quaternary); white-space: nowrap;
+      transition: color var(--speed-regularTransition);
+    }
+    @media (any-hover: hover) { .logo-item:hover { color: var(--color-text-tertiary); } }
+    @media (max-width: 640px) { .logos-track { gap: 32px; } .logo-item { font-size: var(--text-small-size); } }
+
+    /* ========== QUOTES SECTION ========== */
+    .quotes-section {
+      padding: 80px 0;
+    }
+    .quotes-inner {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+    }
+    .quotes-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .quote-card {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-12);
+      padding: 28px;
+      display: flex; flex-direction: column;
+    }
+    .quote-text {
+      font-size: var(--text-regular-size); line-height: 1.6;
+      color: var(--color-text-secondary); flex: 1;
+      margin-bottom: 20px; text-wrap: pretty;
+    }
+    .quote-author { display: flex; align-items: center; gap: 12px; }
+    .quote-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--color-bg-tertiary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--text-small-size); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-tertiary);
+    }
+    .quote-name { font-size: var(--text-small-size); font-weight: var(--font-weight-medium); }
+    .quote-role { font-size: var(--text-mini-size); color: var(--color-text-quaternary); }
+    @media (max-width: 768px) { .quotes-grid { grid-template-columns: 1fr; } }
+
+    /* ========== CTA SECTION ========== */
+    .cta-section {
+      padding: 120px 0; text-align: center;
+    }
+    .cta-inner {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+    }
+    .cta-section h2 { margin-bottom: 16px; }
+    .cta-section p {
+      font-size: var(--text-large-size); color: var(--color-text-secondary);
+      max-width: 480px; margin: 0 auto 40px; text-wrap: balance;
+    }
+
+    /* ========== FOOTER ========== */
+    .footer {
+      border-top: 1px solid var(--color-border-primary);
+      padding: 48px 0;
+    }
+    .footer-inner {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+      display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 48px;
+    }
+    .footer-brand p { font-size: var(--text-small-size); color: var(--color-text-tertiary); margin-top: 12px; max-width: 260px; }
+    .footer-col-title {
+      font-size: var(--text-small-size); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary); margin-bottom: 16px;
+    }
+    .footer-col a {
+      display: block; font-size: var(--text-small-size);
+      color: var(--color-text-tertiary); padding: 4px 0;
+      transition: color var(--speed-regularTransition);
+    }
+    @media (any-hover: hover) { .footer-col a:hover { color: var(--color-text-primary); } }
+    .footer-bottom {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 32px var(--homepage-outer-padding) 0;
+      border-top: 1px solid var(--color-border-primary);
+      margin-top: 48px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-bottom p { font-size: var(--text-mini-size); color: var(--color-text-quaternary); }
+    .footer-bottom-links { display: flex; gap: 20px; }
+    .footer-bottom-links a {
+      font-size: var(--text-mini-size); color: var(--color-text-quaternary);
+      transition: color var(--speed-regularTransition);
+    }
+    @media (any-hover: hover) { .footer-bottom-links a:hover { color: var(--color-text-tertiary); } }
+    @media (max-width: 768px) {
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+      .footer-brand { grid-column: 1 / -1; }
+      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+    }
+
+    /* ========== SCROLL ANIMATIONS ========== */
+    .fade-in {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.6s var(--ease-out-quint), transform 0.6s var(--ease-out-quint);
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-in-delay-1 { transition-delay: 0.1s; }
+    .fade-in-delay-2 { transition-delay: 0.2s; }
+    .fade-in-delay-3 { transition-delay: 0.3s; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <div class="header-inner">
+      <nav class="header-nav">
+        <a href="#" class="header-logo">
+          <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+            <path d="M50 5L95 27.5V72.5L50 95L5 72.5V27.5L50 5Z" fill="var(--color-brand-bg)" opacity="0.15"/>
+            <path d="M50 15L85 32.5V67.5L50 85L15 67.5V32.5L50 15Z" stroke="var(--color-text-primary)" stroke-width="2" fill="none"/>
+            <path d="M35 50L45 60L65 40" stroke="var(--color-text-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          Linear
+        </a>
+        <div class="header-links">
+          <a href="features.html">Features</a>
+          <a href="pricing.html">Pricing</a>
+          <a href="changelog.html">Changelog</a>
+          <a href="blog.html">Blog</a>
+          <a href="#">Docs</a>
+        </div>
+      </nav>
+      <div class="header-actions">
+        <a href="login.html">Log in</a>
+        <a href="login.html" class="btn-primary">Get started</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-inner">
+      <h1 class="title-9 fade-in">Linear</h1>
+      <p class="fade-in fade-in-delay-1">A purpose-built tool for planning and building products. Streamline issues, projects, and product roadmaps.</p>
+      <div class="hero-cta fade-in fade-in-delay-2">
+        <a href="login.html" class="btn-primary">Get started</a>
+        <a href="login.html" class="btn-secondary">Book a demo</a>
+      </div>
+      <div class="hero-visual fade-in fade-in-delay-3">
+        <div class="grid-dots" id="gridDots"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="main-content">
+
+    <!-- Benefit 1: Intake -->
+    <section class="benefit fade-in">
+      <div class="benefit-text">
+        <a href="#" class="benefit-label">
+          <span class="version">1.0</span>
+          <span>Intake</span>
+          <span class="arrow">→</span>
+        </a>
+        <h2 class="title-6">Turn conversations into<br/>actionable issues</h2>
+        <p>Capture feedback from Slack, Discord, email, and support tools. Linear triages and organizes it into your backlog automatically.</p>
+      </div>
+      <div class="benefit-visual">
+        <div class="benefit-visual-inner">
+          <div class="grain"></div>
+          <div class="mock-panel" style="display:flex;flex-direction:column;gap:8px;padding:16px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+              <div style="width:8px;height:8px;border-radius:50%;background:var(--color-green);"></div>
+              <div style="height:5px;width:100px;border-radius:3px;background:var(--color-text-tertiary);"></div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--color-bg-tertiary);flex-shrink:0;"></div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+                <div style="height:5px;width:70%;border-radius:3px;background:var(--color-border-tertiary);"></div>
+                <div style="height:5px;width:90%;border-radius:3px;background:var(--color-border-tertiary);"></div>
+                <div style="height:5px;width:40%;border-radius:3px;background:var(--color-border-tertiary);"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <div style="width:32px;height:32px;border-radius:50%;background:var(--color-bg-tertiary);flex-shrink:0;"></div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px;">
+                <div style="height:5px;width:85%;border-radius:3px;background:var(--color-border-tertiary);"></div>
+                <div style="height:5px;width:60%;border-radius:3px;background:var(--color-border-tertiary);"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px;">
+              <div style="height:20px;padding:0 10px;border-radius:var(--radius-4);background:var(--color-brand-bg);opacity:0.3;display:flex;align-items:center;">
+                <div style="height:4px;width:30px;border-radius:2px;background:var(--color-brand-text);"></div>
+              </div>
+              <div style="height:20px;padding:0 10px;border-radius:var(--radius-4);background:var(--color-bg-tertiary);display:flex;align-items:center;">
+                <div style="height:4px;width:20px;border-radius:2px;background:var(--color-border-tertiary);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefit 2: Plan -->
+    <section class="benefit fade-in">
+      <div class="benefit-text">
+        <a href="#" class="benefit-label">
+          <span class="version">2.0</span>
+          <span>Plan</span>
+          <span class="arrow">→</span>
+        </a>
+        <h2 class="title-6">Set product direction<br/>with confidence</h2>
+        <p>Define roadmaps, write PRDs, and align your team on what to build next. Everything connected to the work that follows.</p>
+      </div>
+      <div class="benefit-visual">
+        <div class="benefit-visual-inner">
+          <div class="grain"></div>
+          <div class="mock-panel">
+            <div class="mock-timeline">
+              <div class="mock-timeline-header">
+                <div class="mock-timeline-title"></div>
+              </div>
+              <div class="mock-timeline-track">
+                <div class="mock-timeline-progress"></div>
+              </div>
+              <div class="mock-timeline-markers">
+                <div class="mock-timeline-marker done"></div>
+                <div class="mock-timeline-marker done"></div>
+                <div class="mock-timeline-marker current"></div>
+                <div class="mock-timeline-marker"></div>
+                <div class="mock-timeline-marker"></div>
+              </div>
+              <div class="mock-cards">
+                <div class="mock-card">
+                  <div class="mock-card-line" style="width:80%;background:var(--color-brand-bg);opacity:0.4;"></div>
+                  <div class="mock-card-line"></div>
+                  <div class="mock-card-line"></div>
+                </div>
+                <div class="mock-card">
+                  <div class="mock-card-line" style="width:60%;background:var(--color-green);opacity:0.4;"></div>
+                  <div class="mock-card-line"></div>
+                  <div class="mock-card-line"></div>
+                </div>
+                <div class="mock-card">
+                  <div class="mock-card-line" style="width:70%;background:var(--color-orange);opacity:0.4;"></div>
+                  <div class="mock-card-line"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefit 3: Build -->
+    <section class="benefit fade-in">
+      <div class="benefit-text">
+        <a href="#" class="benefit-label">
+          <span class="version">3.0</span>
+          <span>Build</span>
+          <span class="arrow">→</span>
+        </a>
+        <h2 class="title-6">Ship faster with<br/>AI agents</h2>
+        <p>Linear agents work across your entire development workflow — from writing code to running tests to deploying changes.</p>
+      </div>
+      <div class="benefit-visual">
+        <div class="benefit-visual-inner">
+          <div class="grain"></div>
+          <div class="mock-panel">
+            <div class="mock-agents">
+              <div class="mock-agent-row">
+                <div class="mock-agent-avatar"></div>
+                <div class="mock-agent-lines">
+                  <div class="mock-agent-line" style="width:80%;"></div>
+                  <div class="mock-agent-line" style="width:50%;"></div>
+                </div>
+                <div class="mock-agent-status active"></div>
+              </div>
+              <div class="mock-agent-row">
+                <div class="mock-agent-avatar" style="background:linear-gradient(135deg, var(--color-green), #4ade80);"></div>
+                <div class="mock-agent-lines">
+                  <div class="mock-agent-line" style="width:70%;"></div>
+                  <div class="mock-agent-line" style="width:40%;"></div>
+                </div>
+                <div class="mock-agent-status active"></div>
+              </div>
+              <div class="mock-agent-row">
+                <div class="mock-agent-avatar" style="background:linear-gradient(135deg, var(--color-orange), #f0bf00);"></div>
+                <div class="mock-agent-lines">
+                  <div class="mock-agent-line" style="width:65%;"></div>
+                  <div class="mock-agent-line" style="width:45%;"></div>
+                </div>
+                <div class="mock-agent-status idle"></div>
+              </div>
+              <div class="mock-agent-row">
+                <div class="mock-agent-avatar" style="background:linear-gradient(135deg, #c084fc, #818cf8);"></div>
+                <div class="mock-agent-lines">
+                  <div class="mock-agent-line" style="width:75%;"></div>
+                  <div class="mock-agent-line" style="width:55%;"></div>
+                </div>
+                <div class="mock-agent-status active"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefit 4: Code Diffs -->
+    <section class="benefit fade-in">
+      <div class="benefit-text">
+        <a href="#" class="benefit-label">
+          <span class="version">4.0</span>
+          <span>Diffs</span>
+          <span class="arrow">→</span>
+        </a>
+        <h2 class="title-6">Review code with<br/>full context</h2>
+        <p>Side-by-side diffs with syntax highlighting, inline comments, and linked issues. Everything you need for thorough code review.</p>
+      </div>
+      <div class="benefit-visual">
+        <div class="benefit-visual-inner">
+          <div class="grain"></div>
+          <div class="mock-panel">
+            <div class="mock-diff">
+              <div class="mock-diff-line removed">
+                <span class="comment">// Old approach</span>
+              </div>
+              <div class="mock-diff-line removed">
+                <span class="keyword">const</span> data = <span class="func">fetch</span>(url);
+              </div>
+              <div class="mock-diff-line removed">
+                <span class="keyword">if</span> (data.status === <span class="string">'error'</span>) {
+              </div>
+              <div class="mock-diff-line removed">
+                &nbsp;&nbsp;<span class="func">throw</span> <span class="keyword">new</span> Error(data.message);
+              </div>
+              <div class="mock-diff-line removed">}</div>
+              <div class="mock-diff-line added">
+                <span class="comment">// New approach</span>
+              </div>
+              <div class="mock-diff-line added">
+                <span class="keyword">const</span> data = <span class="keyword">await</span> <span class="func">fetchOrThrow</span>(url);
+              </div>
+              <div class="mock-diff-line added" style="background:rgba(39,166,68,0.15);">
+                <span class="keyword">const</span> result = <span class="func">transform</span>(data);
+              </div>
+              <div class="mock-diff-line added">
+                <span class="keyword">return</span> result;
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefit 5: Monitor -->
+    <section class="benefit fade-in">
+      <div class="benefit-text">
+        <a href="#" class="benefit-label">
+          <span class="version">5.0</span>
+          <span>Monitor</span>
+          <span class="arrow">→</span>
+        </a>
+        <h2 class="title-6">Track progress<br/>at scale</h2>
+        <p>Built-in analytics and reporting. See team velocity, cycle times, and project health at a glance.</p>
+      </div>
+      <div class="benefit-visual">
+        <div class="benefit-visual-inner">
+          <div class="grain"></div>
+          <div class="mock-panel">
+            <div class="mock-analytics">
+              <div class="mock-chart">
+                <div class="mock-bar" style="height:30%"></div>
+                <div class="mock-bar" style="height:45%"></div>
+                <div class="mock-bar" style="height:35%"></div>
+                <div class="mock-bar" style="height:60%"></div>
+                <div class="mock-bar" style="height:50%"></div>
+                <div class="mock-bar" style="height:75%"></div>
+                <div class="mock-bar" style="height:85%"></div>
+                <div class="mock-bar" style="height:92%"></div>
+                <div class="mock-bar" style="height:70%"></div>
+                <div class="mock-bar" style="height:55%"></div>
+                <div class="mock-bar" style="height:40%"></div>
+                <div class="mock-bar" style="height:65%"></div>
+              </div>
+              <div class="mock-stats">
+                <div>
+                  <div class="mock-stat-value">2,847</div>
+                  <div class="mock-stat-label">Issues closed</div>
+                </div>
+                <div>
+                  <div class="mock-stat-value">94%</div>
+                  <div class="mock-stat-label">On-time rate</div>
+                </div>
+                <div>
+                  <div class="mock-stat-value">3.2d</div>
+                  <div class="mock-stat-label">Avg cycle time</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===== LOGOS ===== -->
+  <section class="logos-section">
+    <div class="logos-inner">
+      <div class="logos-label">Trusted by the best product teams</div>
+      <div class="logos-track">
+        <span class="logo-item">Vercel</span>
+        <span class="logo-item">Retool</span>
+        <span class="logo-item">Ramp</span>
+        <span class="logo-item">Cash App</span>
+        <span class="logo-item">Tailscale</span>
+        <span class="logo-item">Loom</span>
+        <span class="logo-item">Oura</span>
+        <span class="logo-item">Public.com</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== QUOTES ===== -->
+  <section class="quotes-section">
+    <div class="quotes-inner">
+      <div class="quotes-grid">
+        <div class="quote-card fade-in">
+          <div class="quote-text">"Linear is the most thoughtfully designed product management tool I've ever used. The speed and attention to detail is unmatched."</div>
+          <div class="quote-author">
+            <div class="quote-avatar">S</div>
+            <div>
+              <div class="quote-name">Sarah Chen</div>
+              <div class="quote-role">VP Engineering, Vercel</div>
+            </div>
+          </div>
+        </div>
+        <div class="quote-card fade-in fade-in-delay-1">
+          <div class="quote-text">"We moved from Jira to Linear and never looked back. Our team's velocity increased by 40% in the first quarter."</div>
+          <div class="quote-author">
+            <div class="quote-avatar">M</div>
+            <div>
+              <div class="quote-name">Marcus Rivera</div>
+              <div class="quote-role">CTO, Retool</div>
+            </div>
+          </div>
+        </div>
+        <div class="quote-card fade-in fade-in-delay-2">
+          <div class="quote-text">"The AI agents in Linear have transformed how we ship. What used to take days now happens in hours."</div>
+          <div class="quote-author">
+            <div class="quote-avatar">A</div>
+            <div>
+              <div class="quote-name">Aiko Tanaka</div>
+              <div class="quote-role">Head of Product, Ramp</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2 class="title-6 fade-in">Start building better<br/>products today</h2>
+      <p class="fade-in fade-in-delay-1">Free for teams up to 250 issues. No credit card required.</p>
+      <div class="hero-cta fade-in fade-in-delay-2">
+        <a href="login.html" class="btn-primary" style="padding:14px 28px;font-size:var(--text-regular-size);">Get started</a>
+        <a href="login.html" class="btn-secondary" style="padding:14px 28px;font-size:var(--text-regular-size);">Book a demo</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="header-logo" style="margin-bottom:4px;">
+          <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+            <path d="M50 5L95 27.5V72.5L50 95L5 72.5V27.5L50 5Z" fill="var(--color-brand-bg)" opacity="0.15"/>
+            <path d="M50 15L85 32.5V67.5L50 85L15 67.5V32.5L50 15Z" stroke="var(--color-text-primary)" stroke-width="2" fill="none"/>
+            <path d="M35 50L45 60L65 40" stroke="var(--color-text-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          Linear
+        </div>
+        <p>A purpose-built tool for planning and building products</p>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Product</div>
+        <a href="features.html">Features</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="#">Docs</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Company</div>
+        <a href="#">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="#">Careers</a>
+        <a href="#">Press</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Resources</div>
+        <a href="#">Guides</a>
+        <a href="#">API</a>
+        <a href="#">Status</a>
+        <a href="#">Community</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Legal</div>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Linear Clone</p>
+      <div class="footer-bottom-links">
+        <a href="#">Twitter</a>
+        <a href="#">GitHub</a>
+        <a href="#">Discord</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ========== GRID DOT ANIMATION (5x5 matrix) ==========
+    (function initGridDots() {
+      const container = document.getElementById('gridDots');
+      if (!container) return;
+      const dots = [];
+      for (let row = 0; row < 5; row++) {
+        for (let col = 0; col < 5; col++) {
+          const dot = document.createElement('div');
+          dot.className = 'grid-dot';
+          dot.dataset.row = row;
+          dot.dataset.col = col;
+          container.appendChild(dot);
+          dots.push(dot);
+        }
+      }
+
+      // upDown wave animation
+      let step = 0;
+      const totalSteps = 14;
+      function animateWave() {
+        dots.forEach(d => d.classList.remove('active'));
+        for (let row = 0; row < 5; row++) {
+          for (let col = 0; col < 5; col++) {
+            const idx = row * 5 + col;
+            const wavePos = (step + row + col) % totalSteps;
+            if (wavePos < 3) {
+              dots[idx].classList.add('active');
+            }
+          }
+        }
+        step = (step + 1) % totalSteps;
+      }
+      setInterval(animateWave, 200);
+      animateWave();
+    })();
+
+    // ========== SCROLL FADE-IN ANIMATION ==========
+    (function initScrollAnimations() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+      document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    })();
+  </script>
+</body>
+</html>

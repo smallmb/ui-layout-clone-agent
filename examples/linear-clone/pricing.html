@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#08090a" />
+  <title>Linear Clone - Pricing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;510;590;680&display=swap" rel="stylesheet" />
+  <style>
+    /* ========== 重置样式 ========== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 100%; scroll-behavior: smooth; scroll-padding-top: calc(var(--header-height) + 36px); }
+    body { font-family: var(--font-regular); background: var(--color-bg-primary); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; line-height: 1.5; }
+    a { color: inherit; text-decoration: none; cursor: pointer; }
+    ul, ol { list-style: none; }
+    img { max-width: 100%; display: block; flex-shrink: 0; }
+    button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+    /* ========== 设计令牌（深色主题） ========== */
+    :root {
+      /* 颜色 - 文本 */
+      --color-text-primary: #f7f8f8;
+      --color-text-secondary: #d0d6e0;
+      --color-text-tertiary: #8a8f98;
+      --color-text-quaternary: #62666d;
+      /* 颜色 - 背景 */
+      --color-bg-primary: #08090a;
+      --color-bg-secondary: #1c1c1f;
+      --color-bg-tertiary: #232326;
+      --color-bg-quaternary: #28282c;
+      --color-bg-panel: #0f1011;
+      --color-bg-translucent: rgba(255,255,255,0.05);
+      --color-bg-level-0: #08090a;
+      --color-bg-level-1: #0f1011;
+      --color-bg-level-2: #141516;
+      --color-bg-level-3: #191a1b;
+      /* 颜色 - 边框 */
+      --color-border-primary: #23252a;
+      --color-border-secondary: #34343a;
+      --color-border-tertiary: #3e3e44;
+      --color-border-translucent: rgba(255,255,255,0.05);
+      --color-border-translucent-strong: rgba(255,255,255,0.08);
+      /* 颜色 - 品牌 */
+      --color-brand-bg: #5e6ad2;
+      --color-brand-text: #fff;
+      --color-accent: #7170ff;
+      --color-accent-hover: #828fff;
+      --color-link-primary: #828fff;
+      --color-link-hover: #fff;
+      --color-orange: #fc7840;
+      --color-green: #27a644;
+      --color-red: #eb5757;
+      /* 颜色 - 按钮 */
+      --color-button-invert-bg: #e5e5e6;
+      --color-button-invert-bg-hover: #fff;
+      /* 字体 */
+      --font-regular: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-monospace: "SF Mono", "Menlo", monospace;
+      --font-weight-light: 300;
+      --font-weight-normal: 400;
+      --font-weight-medium: 510;
+      --font-weight-semibold: 590;
+      --font-weight-bold: 680;
+      /* 字号 */
+      --text-tiny-size: 0.625rem;
+      --text-micro-size: 0.75rem;
+      --text-mini-size: 0.8125rem;
+      --text-small-size: 0.875rem;
+      --text-regular-size: 0.9375rem;
+      --text-large-size: 1.0625rem;
+      --title-1-size: 1.0625rem;
+      --title-2-size: 1.25rem;
+      --title-3-size: 1.5rem;
+      --title-4-size: 2rem;
+      --title-5-size: 2.5rem;
+      --title-6-size: 3rem;
+      --title-7-size: 3.5rem;
+      --title-8-size: 4rem;
+      --title-9-size: 4.5rem;
+      /* 行高 */
+      --text-regular-line-height: 1.6;
+      --text-small-line-height: 1.5;
+      --title-6-line-height: 1;
+      --title-8-line-height: 1.06;
+      --title-9-line-height: 1;
+      /* 字间距 */
+      --text-regular-letter-spacing: -0.011em;
+      --text-small-letter-spacing: -0.013em;
+      --title-6-letter-spacing: -0.022em;
+      --title-8-letter-spacing: -0.022em;
+      --title-9-letter-spacing: -0.022em;
+      /* 间距 */
+      --page-padding-inline: 24px;
+      --page-padding-block: 64px;
+      --page-max-width: 1024px;
+      --prose-max-width: 624px;
+      --homepage-outer-padding: 46px;
+      --homepage-max-width: calc(1344px + var(--homepage-outer-padding) * 2);
+      --homepage-padding-inset: 32px;
+      --header-height: 72px;
+      --header-blur: 20px;
+      --min-tap-size: 44px;
+      --grid-columns: 12;
+      /* 圆角 */
+      --radius-4: 4px;
+      --radius-8: 8px;
+      --radius-12: 12px;
+      --radius-16: 16px;
+      --radius-rounded: 9999px;
+      /* 阴影 */
+      --shadow-none: 0px 0px 0px transparent;
+      --shadow-low: 0px 2px 4px rgba(0,0,0,0.1);
+      --shadow-medium: 0px 4px 24px rgba(0,0,3,0.12);
+      --shadow-high: 0px 7px 32px rgba(0,0,0,0.35);
+      /* 边框 */
+      --border-hairline: 1px;
+      /* 层级 */
+      --layer-header: 100;
+      --layer-3: 3;
+      /* 速度 */
+      --speed-quickTransition: 0.1s;
+      --speed-regularTransition: 0.25s;
+      /* 缓动函数 */
+      --ease-out-quint: cubic-bezier(.23, 1, .32, 1);
+      --ease-out-expo: cubic-bezier(.19, 1, .22, 1);
+      /* 焦点 */
+      --focus-ring-color: #5e6ad2;
+      --focus-ring-width: 2px;
+      --focus-ring-offset: 2px;
+    }
+
+    @media (max-width: 1280px) { :root { --homepage-outer-padding: 10px; } }
+    @media (max-width: 1024px) { :root { --homepage-outer-padding: 28px; --homepage-padding-inset: 8px; } }
+    @media (max-width: 768px) { :root { --grid-columns: 8; } }
+    @media (max-width: 640px) { :root { --grid-columns: 4; --homepage-outer-padding: 16px; --header-height: 64px; } }
+
+    /* ========== 焦点样式 ========== */
+    :focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring-color); outline-offset: var(--focus-ring-offset); border-radius: 4px; }
+    :focus:not(:focus-visible) { outline: none; }
+
+    /* ========== 选中样式 ========== */
+    ::selection { color: var(--color-white, #fff); background: var(--color-brand-bg); }
+
+    /* ========== 字体工具类 ========== */
+    .title-9 { font-size: var(--title-9-size); line-height: var(--title-9-line-height); letter-spacing: var(--title-9-letter-spacing); font-weight: var(--font-weight-semibold); }
+    .title-8 { font-size: var(--title-8-size); line-height: var(--title-8-line-height); letter-spacing: var(--title-8-letter-spacing); font-weight: var(--font-weight-semibold); }
+    .title-7 { font-size: var(--title-7-size); line-height: 1.1; letter-spacing: -0.022em; font-weight: var(--font-weight-semibold); }
+    .title-6 { font-size: var(--title-6-size); line-height: var(--title-6-line-height); letter-spacing: var(--title-6-letter-spacing); font-weight: var(--font-weight-semibold); }
+    .title-5 { font-size: var(--title-5-size); line-height: 1.1; letter-spacing: -0.022em; font-weight: var(--font-weight-semibold); }
+    .title-4 { font-size: var(--title-4-size); line-height: 1.125; letter-spacing: -0.022em; font-weight: var(--font-weight-semibold); }
+    .title-3 { font-size: var(--title-3-size); line-height: 1.33; letter-spacing: -0.012em; font-weight: var(--font-weight-semibold); }
+    .title-2 { font-size: var(--title-2-size); line-height: 1.33; letter-spacing: -0.012em; font-weight: var(--font-weight-semibold); }
+    .text-body { font-size: var(--text-regular-size); line-height: var(--text-regular-line-height); letter-spacing: var(--text-regular-letter-spacing); }
+    .text-secondary { color: var(--color-text-secondary); }
+    .text-tertiary { color: var(--color-text-tertiary); }
+    .text-quaternary { color: var(--color-text-quaternary); }
+    .text-balance { text-wrap: balance; }
+    .text-pretty { text-wrap: pretty; }
+
+    @media (max-width: 1024px) {
+      .title-9 { font-size: var(--title-7-size); }
+      .title-8 { font-size: var(--title-7-size); }
+      .title-7 { font-size: var(--title-5-size); }
+      .title-6 { font-size: var(--title-5-size); }
+    }
+    @media (max-width: 640px) {
+      .title-9 { font-size: var(--title-5-size); }
+      .title-8 { font-size: var(--title-5-size); }
+      .title-6 { font-size: var(--title-2-size); }
+      .title-5 { font-size: var(--title-3-size); }
+      .title-4 { font-size: var(--title-2-size); }
+    }
+
+    /* ========== 头部 ========== */
+    .header {
+      position: sticky; top: 0; z-index: var(--layer-header);
+      height: var(--header-height);
+      border-bottom: 1px solid var(--color-border-translucent-strong);
+      backdrop-filter: saturate(1.8) blur(var(--header-blur));
+      -webkit-backdrop-filter: saturate(1.8) blur(var(--header-blur));
+      background: rgba(8,9,10,0.8);
+      display: flex; align-items: center;
+    }
+    .header-inner {
+      max-width: var(--homepage-max-width);
+      width: 100%; margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .header-nav { display: flex; align-items: center; gap: 32px; }
+    .header-logo { display: flex; align-items: center; gap: 10px; font-weight: var(--font-weight-semibold); font-size: 1rem; }
+    .header-logo svg { width: 22px; height: 22px; }
+    .header-links { display: flex; gap: 28px; }
+    .header-links a {
+      font-size: var(--text-small-size); font-weight: var(--font-weight-medium);
+      color: var(--color-text-tertiary);
+      transition: color var(--speed-regularTransition);
+    }
+    .header-links a.active { color: var(--color-text-primary); }
+    @media (any-hover: hover) { .header-links a:hover { color: var(--color-text-primary); } }
+    .header-actions { display: flex; align-items: center; gap: 16px; }
+    .header-actions a {
+      font-size: var(--text-small-size); font-weight: var(--font-weight-medium);
+      color: var(--color-text-tertiary);
+      transition: color var(--speed-regularTransition);
+    }
+    @media (any-hover: hover) { .header-actions a:hover { color: var(--color-text-primary); } }
+    .btn-primary {
+      background: var(--color-button-invert-bg); color: var(--color-bg-primary);
+      padding: 8px 16px; border-radius: var(--radius-8);
+      font-size: var(--text-small-size); font-weight: var(--font-weight-medium);
+      transition: background var(--speed-quickTransition);
+    }
+    @media (any-hover: hover) { .btn-primary:hover { background: var(--color-button-invert-bg-hover); } }
+    @media (max-width: 768px) { .header-links, .header-actions a:not(.btn-primary) { display: none; } }
+
+    /* ========== 英雄区 ========== */
+    .hero {
+      padding: 120px 0 80px;
+      text-align: center;
+      position: relative;
+    }
+    .hero-inner {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+    }
+    .hero h1 { margin-bottom: 24px; }
+    .hero p {
+      font-size: var(--text-large-size); color: var(--color-text-secondary);
+      max-width: 520px; margin: 0 auto 40px;
+      text-wrap: balance; line-height: 1.6;
+    }
+    .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .hero-cta .btn-primary { padding: 12px 24px; font-size: var(--text-regular-size); border-radius: var(--radius-8); }
+    .btn-secondary {
+      background: transparent; color: var(--color-text-secondary);
+      padding: 12px 24px; border-radius: var(--radius-8);
+      border: 1px solid var(--color-border-tertiary);
+      font-size: var(--text-regular-size); font-weight: var(--font-weight-medium);
+      transition: border-color var(--speed-regularTransition), color var(--speed-regularTransition);
+    }
+    @media (any-hover: hover) { .btn-secondary:hover { border-color: var(--color-text-tertiary); color: var(--color-text-primary); } }
+    @media (max-width: 640px) { .hero { padding: 80px 0 48px; } .hero h1 br { display: none; } }
+
+    /* ========== 定价切换 ========== */
+    .pricing-toggle {
+      display: flex; justify-content: center; align-items: center; gap: 16px;
+      margin-bottom: 64px;
+    }
+    .toggle-option {
+      font-size: var(--text-regular-size); font-weight: var(--font-weight-medium);
+      color: var(--color-text-tertiary); cursor: pointer;
+      transition: color var(--speed-regularTransition);
+    }
+    .toggle-option.active { color: var(--color-text-primary); }
+    @media (any-hover: hover) { .toggle-option:hover { color: var(--color-text-primary); } }
+    .toggle-switch {
+      width: 48px; height: 24px; border-radius: 12px;
+      background: var(--color-bg-tertiary); border: 1px solid var(--color-border-tertiary);
+      position: relative; cursor: pointer;
+      transition: background var(--speed-regularTransition);
+    }
+    .toggle-switch.active { background: var(--color-brand-bg); border-color: var(--color-brand-bg); }
+    .toggle-switch-knob {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--color-text-primary);
+      position: absolute; top: 2px; left: 2px;
+      transition: transform var(--speed-regularTransition);
+    }
+    .toggle-switch.active .toggle-switch-knob { transform: translateX(24px); }
+    .save-badge {
+      font-size: var(--text-small-size); font-weight: var(--font-weight-medium);
+      color: var(--color-green); background: rgba(39,166,68,0.1);
+      padding: 4px 8px; border-radius: var(--radius-4);
+    }
+
+    /* ========== 定价卡片 ========== */
+    .pricing-cards {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+      margin-bottom: 120px;
+    }
+    .pricing-card {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-16);
+      padding: 32px;
+      display: flex; flex-direction: column;
+      transition: border-color var(--speed-regularTransition), transform var(--speed-regularTransition);
+    }
+    .pricing-card:hover { border-color: var(--color-border-tertiary); transform: translateY(-4px); }
+    .pricing-card.featured {
+      border-color: var(--color-brand-bg);
+      position: relative;
+    }
+    .pricing-card.featured::before {
+      content: 'Most popular';
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--color-brand-bg); color: var(--color-brand-text);
+      font-size: var(--text-small-size); font-weight: var(--font-weight-semibold);
+      padding: 4px 12px; border-radius: var(--radius-rounded);
+    }
+    .pricing-tier {
+      font-size: var(--text-small-size); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-tertiary); text-transform: uppercase;
+      letter-spacing: 0.05em; margin-bottom: 16px;
+    }
+    .pricing-price {
+      display: flex; align-items: baseline; gap: 4px;
+      margin-bottom: 8px;
+    }
+    .pricing-amount {
+      font-size: var(--title-7-size); font-weight: var(--font-weight-bold);
+      line-height: 1; letter-spacing: -0.022em;
+    }
+    .pricing-period {
+      font-size: var(--text-small-size); color: var(--color-text-tertiary);
+    }
+    .pricing-description {
+      font-size: var(--text-small-size); color: var(--color-text-tertiary);
+      line-height: 1.5; margin-bottom: 32px;
+    }
+    .pricing-features {
+      flex: 1; margin-bottom: 32px;
+    }
+    .pricing-feature {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 8px 0;
+    }
+    .pricing-feature-icon {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(39,166,68,0.1); color: var(--color-green);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .pricing-feature-icon svg { width: 12px; height: 12px; }
+    .pricing-feature-text {
+      font-size: var(--text-small-size); color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+    .pricing-cta {
+      width: 100%; padding: 12px 24px; border-radius: var(--radius-8);
+      font-size: var(--text-regular-size); font-weight: var(--font-weight-medium);
+      text-align: center; transition: all var(--speed-regularTransition);
+    }
+    .pricing-cta.primary {
+      background: var(--color-button-invert-bg); color: var(--color-bg-primary);
+    }
+    .pricing-cta.primary:hover { background: var(--color-button-invert-bg-hover); }
+    .pricing-cta.secondary {
+      background: transparent; color: var(--color-text-secondary);
+      border: 1px solid var(--color-border-tertiary);
+    }
+    .pricing-cta.secondary:hover { border-color: var(--color-text-tertiary); color: var(--color-text-primary); }
+
+    @media (max-width: 1024px) { .pricing-cards { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; } }
+
+    /* ========== 功能对比表 ========== */
+    .comparison-section {
+      padding: 80px 0;
+      border-top: 1px solid var(--color-border-primary);
+    }
+    .comparison-inner {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+    }
+    .comparison-title {
+      text-align: center; margin-bottom: 48px;
+    }
+    .comparison-table {
+      width: 100%; border-collapse: collapse;
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 16px; text-align: left;
+      border-bottom: 1px solid var(--color-border-primary);
+    }
+    .comparison-table th {
+      font-size: var(--text-small-size); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-tertiary); text-transform: uppercase;
+      letter-spacing: 0.05em; background: var(--color-bg-secondary);
+      position: sticky; top: var(--header-height); z-index: 10;
+    }
+    .comparison-table th:first-child { border-radius: var(--radius-8) 0 0 0; }
+    .comparison-table th:last-child { border-radius: 0 var(--radius-8) 0 0; }
+    .comparison-table td:first-child {
+      font-size: var(--text-small-size); font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+    }
+    .comparison-table td {
+      font-size: var(--text-small-size); color: var(--color-text-tertiary);
+      text-align: center;
+    }
+    .comparison-table tr:hover td { background: var(--color-bg-translucent); }
+    .comparison-category {
+      font-size: var(--text-small-size); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary); padding: 16px 16px 8px;
+      background: var(--color-bg-level-1);
+    }
+    .check-icon { color: var(--color-green); }
+    .dash-icon { color: var(--color-text-quaternary); }
+
+    @media (max-width: 768px) {
+      .comparison-table { font-size: var(--text-small-size); }
+      .comparison-table th, .comparison-table td { padding: 12px 8px; }
+    }
+
+    /* ========== FAQ ========== */
+    .faq-section {
+      padding: 80px 0;
+      border-top: 1px solid var(--color-border-primary);
+    }
+    .faq-inner {
+      max-width: var(--page-max-width); margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+    }
+    .faq-title {
+      text-align: center; margin-bottom: 48px;
+    }
+    .faq-list {
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .faq-item {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-12);
+      overflow: hidden;
+    }
+    .faq-question {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 24px; cursor: pointer;
+      transition: background var(--speed-regularTransition);
+    }
+    .faq-question:hover { background: var(--color-bg-translucent); }
+    .faq-question-text {
+      font-size: var(--text-regular-size); font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+    .faq-question-icon {
+      width: 20px; height: 20px; color: var(--color-text-tertiary);
+      transition: transform var(--speed-regularTransition);
+    }
+    .faq-item.active .faq-question-icon { transform: rotate(45deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height var(--speed-regularTransition);
+    }
+    .faq-item.active .faq-answer { max-height: 200px; }
+    .faq-answer-content {
+      padding: 0 24px 20px;
+      font-size: var(--text-small-size); color: var(--color-text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ========== CTA ========== */
+    .cta-section {
+      padding: 120px 0; text-align: center;
+      border-top: 1px solid var(--color-border-primary);
+    }
+    .cta-inner {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+    }
+    .cta-section h2 { margin-bottom: 16px; }
+    .cta-section p {
+      font-size: var(--text-large-size); color: var(--color-text-secondary);
+      max-width: 480px; margin: 0 auto 40px; text-wrap: balance;
+    }
+
+    /* ========== 页脚 ========== */
+    .footer {
+      border-top: 1px solid var(--color-border-primary);
+      padding: 48px 0;
+    }
+    .footer-inner {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 0 var(--homepage-outer-padding);
+      display: grid; grid-template-columns: 2fr repeat(4, 1fr); gap: 48px;
+    }
+    .footer-brand p { font-size: var(--text-small-size); color: var(--color-text-tertiary); margin-top: 12px; max-width: 260px; }
+    .footer-col-title {
+      font-size: var(--text-small-size); font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary); margin-bottom: 16px;
+    }
+    .footer-col a {
+      display: block; font-size: var(--text-small-size);
+      color: var(--color-text-tertiary); padding: 4px 0;
+      transition: color var(--speed-regularTransition);
+    }
+    @media (any-hover: hover) { .footer-col a:hover { color: var(--color-text-primary); } }
+    .footer-bottom {
+      max-width: var(--homepage-max-width); margin: 0 auto;
+      padding: 32px var(--homepage-outer-padding) 0;
+      border-top: 1px solid var(--color-border-primary);
+      margin-top: 48px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-bottom p { font-size: var(--text-mini-size); color: var(--color-text-quaternary); }
+    .footer-bottom-links { display: flex; gap: 20px; }
+    .footer-bottom-links a {
+      font-size: var(--text-mini-size); color: var(--color-text-quaternary);
+      transition: color var(--speed-regularTransition);
+    }
+    @media (any-hover: hover) { .footer-bottom-links a:hover { color: var(--color-text-tertiary); } }
+    @media (max-width: 768px) {
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+      .footer-brand { grid-column: 1 / -1; }
+      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+    }
+
+    /* ========== 滚动动画 ========== */
+    .fade-in {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.6s var(--ease-out-quint), transform 0.6s var(--ease-out-quint);
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    .fade-in-delay-1 { transition-delay: 0.1s; }
+    .fade-in-delay-2 { transition-delay: 0.2s; }
+    .fade-in-delay-3 { transition-delay: 0.3s; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== 头部导航 ===== -->
+  <header class="header">
+    <div class="header-inner">
+      <nav class="header-nav">
+        <a href="index.html" class="header-logo">
+          <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+            <path d="M50 5L95 27.5V72.5L50 95L5 72.5V27.5L50 5Z" fill="var(--color-brand-bg)" opacity="0.15"/>
+            <path d="M50 15L85 32.5V67.5L50 85L15 67.5V32.5L50 15Z" stroke="var(--color-text-primary)" stroke-width="2" fill="none"/>
+            <path d="M35 50L45 60L65 40" stroke="var(--color-text-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          Linear
+        </a>
+        <div class="header-links">
+          <a href="features.html">Features</a>
+          <a href="pricing.html" class="active">Pricing</a>
+          <a href="changelog.html">Changelog</a>
+          <a href="blog.html">Blog</a>
+          <a href="#">Docs</a>
+        </div>
+      </nav>
+      <div class="header-actions">
+        <a href="login.html">Log in</a>
+        <a href="login.html" class="btn-primary">Get started</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== 英雄区 ===== -->
+  <section class="hero">
+    <div class="hero-inner">
+      <h1 class="title-9 fade-in">Pricing</h1>
+      <p class="fade-in fade-in-delay-1">Simple, transparent pricing for teams of all sizes</p>
+    </div>
+  </section>
+
+  <!-- ===== 定价切换 ===== -->
+  <div class="pricing-toggle fade-in fade-in-delay-2">
+    <span class="toggle-option active" data-period="monthly">Monthly</span>
+    <div class="toggle-switch" id="pricingToggle">
+      <div class="toggle-switch-knob"></div>
+    </div>
+    <span class="toggle-option" data-period="annual">Annual</span>
+    <span class="save-badge">Save 20%</span>
+  </div>
+
+  <!-- ===== 定价卡片 ===== -->
+  <section class="pricing-cards">
+    <!-- Free 卡片 -->
+    <div class="pricing-card fade-in">
+      <div class="pricing-tier">Free</div>
+      <div class="pricing-price">
+        <span class="pricing-amount" data-monthly="0" data-annual="0">$0</span>
+        <span class="pricing-period">/month</span>
+      </div>
+      <div class="pricing-description">Perfect for small teams and individuals</div>
+      <div class="pricing-features">
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Up to 250 issues</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Unlimited members</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Basic issue tracking</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Public projects</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Community support</span>
+        </div>
+      </div>
+      <button class="pricing-cta secondary">Get started</button>
+    </div>
+
+    <!-- Pro 卡片（推荐） -->
+    <div class="pricing-card featured fade-in fade-in-delay-1">
+      <div class="pricing-tier">Pro</div>
+      <div class="pricing-price">
+        <span class="pricing-amount" data-monthly="10" data-annual="8">$10</span>
+        <span class="pricing-period">/user/month</span>
+      </div>
+      <div class="pricing-description">For growing teams that need more power</div>
+      <div class="pricing-features">
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Unlimited issues</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Advanced workflows</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Custom fields</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Priority support</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">AI assistants</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Advanced analytics</span>
+        </div>
+      </div>
+      <button class="pricing-cta primary">Get started</button>
+    </div>
+
+    <!-- Enterprise 卡片 -->
+    <div class="pricing-card fade-in fade-in-delay-2">
+      <div class="pricing-tier">Enterprise</div>
+      <div class="pricing-price">
+        <span class="pricing-amount">Custom</span>
+      </div>
+      <div class="pricing-description">For large organizations with advanced needs</div>
+      <div class="pricing-features">
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Everything in Pro</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">SSO & SAML</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">SCIM provisioning</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Audit logs</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Dedicated support</span>
+        </div>
+        <div class="pricing-feature">
+          <div class="pricing-feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <span class="pricing-feature-text">Custom integrations</span>
+        </div>
+      </div>
+      <button class="pricing-cta secondary">Contact sales</button>
+    </div>
+  </section>
+
+  <!-- ===== 功能对比表 ===== -->
+  <section class="comparison-section">
+    <div class="comparison-inner">
+      <h2 class="comparison-title title-6 fade-in">Compare plans</h2>
+      <div class="comparison-table-wrapper" style="overflow-x: auto;">
+        <table class="comparison-table fade-in fade-in-delay-1">
+          <thead>
+            <tr>
+              <th style="min-width: 200px;">Feature</th>
+              <th style="min-width: 120px;">Free</th>
+              <th style="min-width: 120px;">Pro</th>
+              <th style="min-width: 120px;">Enterprise</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 核心功能 -->
+            <tr>
+              <td colspan="4" class="comparison-category">Core Features</td>
+            </tr>
+            <tr>
+              <td>Issues</td>
+              <td>250</td>
+              <td>Unlimited</td>
+              <td>Unlimited</td>
+            </tr>
+            <tr>
+              <td>Members</td>
+              <td>Unlimited</td>
+              <td>Unlimited</td>
+              <td>Unlimited</td>
+            </tr>
+            <tr>
+              <td>Projects</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>Cycles</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>Labels</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            
+            <!-- 高级功能 -->
+            <tr>
+              <td colspan="4" class="comparison-category">Advanced Features</td>
+            </tr>
+            <tr>
+              <td>Custom fields</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>Workflows</td>
+              <td>Basic</td>
+              <td>Advanced</td>
+              <td>Advanced</td>
+            </tr>
+            <tr>
+              <td>AI assistants</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>Analytics</td>
+              <td>Basic</td>
+              <td>Advanced</td>
+              <td>Advanced</td>
+            </tr>
+            <tr>
+              <td>API access</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            
+            <!-- 集成 -->
+            <tr>
+              <td colspan="4" class="comparison-category">Integrations</td>
+            </tr>
+            <tr>
+              <td>GitHub</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>Slack</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>Figma</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>Custom webhooks</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            
+            <!-- 安全与合规 -->
+            <tr>
+              <td colspan="4" class="comparison-category">Security & Compliance</td>
+            </tr>
+            <tr>
+              <td>SSO / SAML</td>
+              <td class="dash-icon">—</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>SCIM provisioning</td>
+              <td class="dash-icon">—</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>Audit logs</td>
+              <td class="dash-icon">—</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>SOC 2 compliance</td>
+              <td class="dash-icon">—</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            
+            <!-- 支持 -->
+            <tr>
+              <td colspan="4" class="comparison-category">Support</td>
+            </tr>
+            <tr>
+              <td>Community</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>Priority email</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>Dedicated account manager</td>
+              <td class="dash-icon">—</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+            </tr>
+            <tr>
+              <td>Custom onboarding</td>
+              <td class="dash-icon">—</td>
+              <td class="dash-icon">—</td>
+              <td class="check-icon">✓</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section class="faq-section">
+    <div class="faq-inner">
+      <h2 class="faq-title title-6 fade-in">Frequently asked questions</h2>
+      <div class="faq-list fade-in fade-in-delay-1">
+        <!-- FAQ 1 -->
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-question-text">Can I switch plans at any time?</span>
+            <div class="faq-question-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              Yes, you can upgrade or downgrade your plan at any time. When upgrading, you'll be charged the prorated difference for the remainder of your billing cycle. When downgrading, the change takes effect at the start of your next billing cycle.
+            </div>
+          </div>
+        </div>
+        
+        <!-- FAQ 2 -->
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-question-text">What happens when I reach the issue limit on the Free plan?</span>
+            <div class="faq-question-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              When you reach 250 issues on the Free plan, you can still view and manage existing issues, but you won't be able to create new ones until you upgrade to a paid plan or archive some existing issues.
+            </div>
+          </div>
+        </div>
+        
+        <!-- FAQ 3 -->
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-question-text">Do you offer discounts for non-profits or educational institutions?</span>
+            <div class="faq-question-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              Yes, we offer special pricing for non-profits, educational institutions, and open-source projects. Please contact our sales team with your organization details to learn more about eligibility and discount rates.
+            </div>
+          </div>
+        </div>
+        
+        <!-- FAQ 4 -->
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-question-text">What payment methods do you accept?</span>
+            <div class="faq-question-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              We accept all major credit cards (Visa, Mastercard, American Express) and ACH bank transfers for annual plans. Enterprise customers can also pay via invoice with NET 30 terms.
+            </div>
+          </div>
+        </div>
+        
+        <!-- FAQ 5 -->
+        <div class="faq-item">
+          <div class="faq-question">
+            <span class="faq-question-text">Is there a free trial for the Pro plan?</span>
+            <div class="faq-question-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </div>
+          </div>
+          <div class="faq-answer">
+            <div class="faq-answer-content">
+              Yes, all new accounts get a 14-day free trial of the Pro plan with full access to all features. No credit card required to start your trial. You can downgrade to the Free plan at any time during or after the trial.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <h2 class="title-6 fade-in">Start building better<br/>products today</h2>
+      <p class="fade-in fade-in-delay-1">Free for teams up to 250 issues. No credit card required.</p>
+      <div class="hero-cta fade-in fade-in-delay-2">
+        <a href="login.html" class="btn-primary" style="padding:14px 28px;font-size:var(--text-regular-size);">Get started</a>
+        <a href="login.html" class="btn-secondary" style="padding:14px 28px;font-size:var(--text-regular-size);">Book a demo</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 页脚 ===== -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="header-logo" style="margin-bottom:4px;">
+          <svg width="22" height="22" viewBox="0 0 100 100" fill="none">
+            <path d="M50 5L95 27.5V72.5L50 95L5 72.5V27.5L50 5Z" fill="var(--color-brand-bg)" opacity="0.15"/>
+            <path d="M50 15L85 32.5V67.5L50 85L15 67.5V32.5L50 15Z" stroke="var(--color-text-primary)" stroke-width="2" fill="none"/>
+            <path d="M35 50L45 60L65 40" stroke="var(--color-text-primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          Linear
+        </div>
+        <p>A purpose-built tool for planning and building products</p>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Product</div>
+        <a href="features.html">Features</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="changelog.html">Changelog</a>
+        <a href="#">Docs</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Company</div>
+        <a href="#">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="#">Careers</a>
+        <a href="#">Press</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Resources</div>
+        <a href="#">Guides</a>
+        <a href="#">API</a>
+        <a href="#">Status</a>
+        <a href="#">Community</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Legal</div>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Linear Clone</p>
+      <div class="footer-bottom-links">
+        <a href="#">Twitter</a>
+        <a href="#">GitHub</a>
+        <a href="#">Discord</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ========== 定价切换功能 ==========
+    (function initPricingToggle() {
+      const toggle = document.getElementById('pricingToggle');
+      const monthlyOption = document.querySelector('[data-period="monthly"]');
+      const annualOption = document.querySelector('[data-period="annual"]');
+      const amounts = document.querySelectorAll('.pricing-amount[data-monthly]');
+      let isAnnual = false;
+
+      // 切换月度/年度显示
+      function updatePricing() {
+        amounts.forEach(amount => {
+          const monthly = amount.dataset.monthly;
+          const annual = amount.dataset.annual;
+          amount.textContent = isAnnual ? `$${annual}` : `$${monthly}`;
+        });
+        
+        // 更新切换按钮状态
+        if (isAnnual) {
+          toggle.classList.add('active');
+          monthlyOption.classList.remove('active');
+          annualOption.classList.add('active');
+        } else {
+          toggle.classList.remove('active');
+          monthlyOption.classList.add('active');
+          annualOption.classList.remove('active');
+        }
+      }
+
+      // 点击切换按钮
+      toggle.addEventListener('click', () => {
+        isAnnual = !isAnnual;
+        updatePricing();
+      });
+
+      // 点击月度/年度选项
+      monthlyOption.addEventListener('click', () => {
+        isAnnual = false;
+        updatePricing();
+      });
+
+      annualOption.addEventListener('click', () => {
+        isAnnual = true;
+        updatePricing();
+      });
+    })();
+
+    // ========== FAQ展开/收起功能 ==========
+    (function initFAQ() {
+      const faqItems = document.querySelectorAll('.faq-item');
+      
+      faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+          const isActive = item.classList.contains('active');
+          
+          // 关闭所有其他FAQ项
+          faqItems.forEach(otherItem => {
+            otherItem.classList.remove('active');
+          });
+          
+          // 切换当前项状态
+          if (!isActive) {
+            item.classList.add('active');
+          }
+        });
+      });
+    })();
+
+    // ========== 滚动淡入动画 ==========
+    (function initScrollAnimations() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+      document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    })();
+  </script>
+</body>
+</html>
