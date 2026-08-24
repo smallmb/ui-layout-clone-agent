@@ -1,6 +1,6 @@
-# 🧬 UI Layout Clone Agent (v7.0.0)
+# 🧬 UI Layout Clone Agent (v7.2.0)
 
-![Version](https://img.shields.io/badge/version-7.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-7.2.0-blue.svg)
 ![Type](https://img.shields.io/badge/type-AI_Agent_Skill-orange.svg)
 ![Architecture](https://img.shields.io/badge/architecture-Multi--Agent_Swarm-purple.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -9,17 +9,23 @@ An enterprise-grade, full-stack product reverse engineering engine powered by LL
 
 Unlike traditional code generators, this Agent Skill operates on a **Dual-Track Architecture**, seamlessly handling both local AST/Grep static analysis and dynamic Headless Browser sniffing (Playwright + Vision Model + Network Interception) for production URLs.
 
-## ✨ Core Capabilities in v7.0.0
+## ✨ Core Capabilities in v7.2.0
 
 - **🌐 Dynamic Site Extraction**: Extracts semantic DOM, micro-interactions, and animations directly from compiled production URLs using Headless Browsers.
 - **📡 Data-Driven Sniffing (Network Interception)**: Intercepts XHR/Fetch requests during the extraction phase to infer API schemas and generate Mock Data structures.
 - **🎨 W3C Design Tokens Export**: Reverse-engineers computed styles and exports a standard `tokens.json` directly compatible with Figma Token Studio.
 - **🤖 Multi-Agent Swarm Architecture**: Uses a `DelegateTask` system to prevent context overflow. The Main Agent handles layout and routing, while SubAgents simultaneously build 3D scenes, complex CSS charts, and interaction logic.
 - **🗺️ Multi-Page Site Mapping**: Automatically extracts site structures and navigation rules to generate interconnected multi-page applications.
+- **🖼️ Image and Design Reference Cloning**: Supports screenshots and design images with explicit observation, inference, and unknown boundaries.
+- **🧩 Adaptive Workflow**: Uses Simple, Standard, and Advanced modes instead of forcing multi-agent execution for every task.
+- **🛡️ Protected Areas and Diff/Patch Safety**: Preserves APIs, authentication, routes, global state, and business logic by default.
+- **🔌 Standard Extractors**: Includes semantic DOM, design tokens, interaction states, network schema, and site-map extractors.
 
 ## 📂 Repository Structure
 
 - `/agent/ui-layout-clone.md` - The core Agent Skill instruction file. Import this into Cursor, Cline, or mimocode.
+- `/agent/ui-layout-clone.en.md` - English version of the core Skill.
+- `/agent/extractors` - Reusable browser-side extraction scripts and their execution contract.
 - `/examples/linear-clone` - A breathtaking 6-page, 1:1 replica of the Linear.app website. **Generated entirely by this Agent with ZERO external dependencies or images.**
 
 ## 🚀 The Linear Clone Showcase

@@ -1,6 +1,6 @@
 ---
 name: ui-layout-clone
-version: 7.0.0
+version: 7.2.0
 description: |
   全栈产品反向工程引擎：从本地源码（AST/Grep 静态分析）或线上已编译站点（无头浏览器 + 视觉模型 + DOM 嗅探 + 网络拦截）提取
   布局、设计系统、交互行为、动画效果、状态管理、动态渲染模式、数据流与 API Schema、
@@ -9,6 +9,8 @@ description: |
   适配用户技术栈生成完整的界面代码。
   支持 React/Vue/Svelte/HTML + Three.js + Canvas + Electron 等项目，
   覆盖 CSS 布局 + JS 交互 + 动画系统 + 状态管理 + 3D/2D 渲染 + 音频可视化 + 桌面端的完整迁移。
+  v7.2.0：增加 Extractors 规范、Advanced 共享上下文协议与 Diff/Patch 安全修改机制；
+  v7.1.0：核心流程分层、图片视觉复刻、目标项目运行分析、实现计划与验证闭环；
   v7.0.0 新增：数据驱动嗅探（NetworkInterception 拦截 XHR/Fetch 提取 API Schema）、
   W3C Design Tokens 标准导出（tokens.json）、多智能体协同架构（DelegateTask 分工生成）、
   多页面站点地图提取与导航互通协议。
@@ -54,6 +56,63 @@ triggers:
 
 从参考项目提取完整的界面行为（布局 + 交互 + 动画 + 状态），适配用户技术栈生成高质量代码。
 
+## 使用范围与流程分层
+
+本 Skill 采用“核心流程 + 按需模块”的方式执行，避免简单的页面复刻被不必要的高级分析拖慢。
+
+### 核心流程（默认启用）
+
+适用于大多数 UI 复刻任务：
+
+1. 判断参考输入类型（本地源码、线上 URL、图片或设计稿）
+2. 分析参考内容的布局、视觉层级、设计系统和响应式特征
+3. 分析目标项目的技术栈、目录结构、依赖和现有设计系统
+4. 将参考结果和目标约束分别写入 `.layout-clone/reference.md` 与 `.layout-clone/target.md`
+5. 生成布局、组件、样式和基础交互
+6. 启动目标项目并进行固定视口截图验证
+7. 根据视觉和功能差异进行修正，并记录无法还原的部分
+
+### 按需启用模块
+
+仅在用户明确要求，或分析结果检测到相关能力时启用：
+
+- 动画与滚动动画
+- API 与数据模型
+- 多页面与站点地图
+- Canvas 2D 与音频可视化
+- Three.js、WebGL 与 Shader
+- 拖拽、触摸和手势
+- Electron 桌面端能力
+- 多智能体协作
+
+如果当前环境缺少某个专用工具，必须使用可用能力降级执行，并在结果中说明限制，不得因此中断整个核心流程。
+
+### 图片与设计稿克隆
+
+支持将 PNG、JPG、WEBP、截图或设计稿图片作为参考输入。图片输入只能提供视觉信息，不能直接提供原始 DOM、事件逻辑、真实字体文件或 API 数据，因此默认执行“视觉复刻”模式：
+
+- 提取页面区域、布局骨架、组件层级和视觉优先级
+- 估算颜色、字体层级、间距、圆角、阴影和响应式意图
+- 识别按钮、表单、卡片、导航、弹窗等可见组件
+- 对无法从图片确认的交互、状态和数据标注为推断项
+- 生成后通过截图对比继续修正视觉差异
+
+图片分析不应伪造不可观察的信息。除非用户另有说明，图片中的文字、图标和图片资源仅作为布局参考；需要可编辑文本、真实资源或完整交互时，应同时提供源码、线上 URL 或资源文件。
+
+### 工具可用性与降级策略
+
+执行前检查当前环境是否提供专用工具，并按以下顺序降级：
+
+| 不可用能力 | 首选降级方式 |
+|------------|--------------|
+| VisionModel | 使用截图尺寸、DOM、computed style 和人工可见信息分析 |
+| Playwright 或浏览器控制 | 使用源码、静态资源和本地构建检查 |
+| NetworkIntercept | 分析公开脚本、请求封装和页面可见数据，不推断完整 API Schema |
+| DelegateTask | 由主 Agent 按实现计划顺序完成模块 |
+| 截图对比工具 | 使用固定视口截图、DOM 尺寸和 computed style 手动对照 |
+
+降级后仍需完成核心流程，并在 `reference.md`、`validation.md` 或最终报告中记录缺失工具和由此产生的限制。工具不可用不是跳过分析或声称已验证的理由。
+
 ## 执行约束
 
 - 参考项目的分析结果必须写入 `.layout-clone/reference.md`，作为 Phase 3 的输入
@@ -73,6 +132,7 @@ triggers:
 | 本地路径指向 `.html`、`.vue`、`.tsx` 等源码文件 | 本地源码文件 | → Phase 1（静态分析流程） |
 | `http://` 或 `https://` 开头的 URL | 线上站点 | → Dynamic Extraction Phase（动态嗅探流程） |
 | 以 `localhost` 或 `127.0.0.1` 开头的 URL | 本地开发服务器 | → Dynamic Extraction Phase（动态嗅探流程） |
+| 图片文件路径或用户上传的 PNG、JPG、JPEG、WEBP、GIF、SVG | 图片/设计稿 | → Image Extraction Phase（视觉复刻流程） |
 | 无法判定 | 询问用户 | → AskUserQuestion 确认来源类型 |
 
 **判定为本地路径时**：执行 Phase 1 全部静态分析逻辑（AST/Grep 模式），从源码中提取布局、设计系统、交互行为等完整信息。
@@ -81,9 +141,70 @@ triggers:
 
 ---
 
+## Image Extraction Phase: 图片与设计稿视觉复刻
+
+**输入**: PNG、JPG、JPEG、WEBP、GIF、SVG、截图或设计稿图片。
+
+**目标**: 从图片中提取可观察的视觉结构，生成适配目标项目的页面。图片分析只描述可见事实；无法确认的 DOM、交互、API、字体文件和资源来源必须标记为推断或未知。
+
+### 图片分析流程
+
+1. 读取图片尺寸、方向和可用分辨率
+2. 分析页面边界、背景、主要区域和视觉层级
+3. 识别 Header、Hero、导航、卡片、表单、按钮、列表、Footer 等可见组件
+4. 估算颜色、字体层级、间距、圆角、阴影、对齐方式和容器宽度
+5. 推断桌面端与移动端可能的重排方式；没有移动端图片时必须标记为推断
+6. 将结果写入 `.layout-clone/reference.md`，并记录观察项、推断项和未知项
+7. 结合 Phase 2 的目标项目分析生成实现计划
+8. 生成代码后按照 Phase 4 的固定视口截图流程进行视觉验证
+
+### 图片分析输出结构
+
+```yaml
+image_reference:
+  source: "图片路径或上传标识"
+  dimensions: "1440x900"
+  layout_skeleton: []
+  component_inventory: []
+  visual_hierarchy: []
+  design_system:
+    colors: []
+    typography: []
+    spacing: []
+    radius: []
+    shadows: []
+  observation: []
+  inference: []
+  unknown: []
+  limitations: []
+```
+
+如果图片分辨率不足、存在裁切、文字无法识别或包含复杂图形，必须记录在 `limitations` 中，不得用虚构信息补全。
+
+---
+
 ## Dynamic Extraction Phase: 线上 URL 动态嗅探工作流
 
 **输入**: 线上站点 URL（已编译的生产环境页面）
+
+### 认证会话与安全边界
+
+动态分析需要登录时，按以下优先级获取访问状态：
+
+1. 复用用户已经登录的浏览器会话
+2. 由用户在浏览器中完成一次辅助登录
+3. 使用用户明确提供的测试环境认证流程
+
+不得向用户索取、保存或复制密码、Cookie、Access Token、Refresh Token 或 Authorization Header。认证状态只用于当前分析会话，并在结果中记录：
+
+```yaml
+authenticated_session:
+  status: "available | required | unavailable"
+  source: "existing-browser-session | user-assisted-login | test-auth-flow"
+  limitations: []
+```
+
+如果无法取得认证状态，继续分析公开页面，并将受保护页面和 API 标记为未验证。
 
 **目标**: 在无源码的情况下，通过无头浏览器、视觉模型和脚本注入，反推出站点的完整设计系统、布局骨架、交互状态和微交互动效参数。
 
@@ -215,10 +336,10 @@ component_inventory:
 })()
 ```
 
-**输出结构** (写入 `.layout-clone/reference.md` 的 site_structure 字段):
+**输出结构** (写入 `.layout-clone/reference.md` 的 `site_map` 字段):
 
 ```yaml
-site_structure:
+site_map:
   baseUrl: "https://linear.app"
   totalPages: 6
   pages:
@@ -257,75 +378,15 @@ site_structure:
         path: "/pricing"
 ```
 
-### Step A.5: 站点地图提取 (Site Map Extraction)
+### Extractor 执行优先级
 
-**目的**: 发现目标站点的所有内部页面 URL，构建页面图谱和导航层级关系，为多页面生成提供完整的路由信息。
+`extractors/` 目录中的脚本是标准执行实现。正文中的内联 JavaScript 仅作为算法说明、兼容降级方案和结果格式参考；当对应 Extractor 可用时，不得重复编写或优先执行旧版内联脚本。
 
-**执行脚本**:
-
-```javascript
-// ExecuteScript: 提取当前页面所有内部链接，构建站点地图
-(() => {
-  const links = Array.from(document.querySelectorAll('a[href]'));
-  const base = window.location.origin;
-  const internal = links
-    .map(a => ({ href: a.href, text: a.textContent.trim().slice(0, 50) }))
-    .filter(l => l.href.startsWith(base))
-    .filter(l => !l.href.includes('#') && !l.href.includes('javascript:'))
-    .filter(l => !l.href.includes('/api/') && !l.href.includes('/cdn/'));
-  const unique = [...new Map(internal.map(l => [l.href, l])).values()];
-  return JSON.stringify(unique, null, 2);
-})()
-```
-
-**输出结构** (写入 `.layout-clone/reference.md` 的 site_map 字段):
-
-```yaml
-site_map:
-  pages:
-    - url: "/"
-      title: "首页"
-      nav_active: null
-    - url: "/features"
-      title: "Features"
-      nav_active: "Features"
-    - url: "/pricing"
-      title: "Pricing"
-      nav_active: "Pricing"
-    - url: "/changelog"
-      title: "Changelog"
-      nav_active: "Changelog"
-    - url: "/blog"
-      title: "Blog"
-      nav_active: "Blog"
-  navigation:
-    primary:
-      position: "header"
-      links:
-        - label: "Features"
-          url: "/features"
-        - label: "Pricing"
-          url: "/pricing"
-        - label: "Changelog"
-          url: "/changelog"
-        - label: "Blog"
-          url: "/blog"
-    footer:
-      position: "footer"
-      columns:
-        - title: "Product"
-          links:
-            - label: "Features"
-              url: "/features"
-            - label: "Pricing"
-              url: "/pricing"
-  route_convention:
-    method: "file-based"  # 或 "config-based"
-    naming: "lowercase-kebab"
-    extension: ".html"
-```
+Extractor 的统一结果必须包含 `extractor`、`status`、`data` 和 `limitations`。提取结果写入 `reference.md` 或指定输出文件时，只使用 `data` 中的标准字段。
 
 ### Step B: 降噪与语义结构提取
+
+优先调用 `extractors/semantic-dom.js`。它支持语义节点、Shadow DOM、同源 iframe 和跨域限制记录。
 
 **目的**: 不抓取原始 DOM（太嘈杂），而是通过脚本注入提取带语义的结构树，转换为轻量级 JSON/Markdown。
 
@@ -428,7 +489,23 @@ site_map:
 
 ### Step C: 标准设计资产导出 (W3C Design Tokens)
 
+优先调用 `extractors/design-tokens.js`。内联脚本只用于没有 Extractor 执行能力时的降级方案。最终写入 `.layout-clone/tokens.json` 的内容使用 Extractor 返回的 `data.tokens`，原始采样值保存在 `data.rawValues`。
+
 **目的**: 遍历核心节点，提取浏览器实际计算后的样式值，生成符合 **W3C Design Tokens Format** 的 `tokens.json` 文件。该文件可直接导入 Figma Token Studio 插件或用于 CI/CD 设计同步。
+
+### Step C.0: Design Tokens 输出约束
+
+`tokens.json` 是对实际样式的结构化摘要，不得将推测值伪装成参考页面的真实 token。每个可输出的 token 必须包含 `$type` 和 `$value`；无法可靠归类的值放入 `metadata` 或 `limitations`，不得强行归入颜色、字体或间距。
+
+生成后必须执行以下校验：
+
+- [ ] JSON 可以被解析
+- [ ] 每个 token 都包含 `$type` 和 `$value`
+- [ ] `color` 使用颜色类型，尺寸使用 `dimension` 类型，字体使用 `fontFamily` 类型
+- [ ] 没有将多个不相关的 computed style 值错误合并成一个 token
+- [ ] `reference.md` 中标注 token 的提取来源和限制
+
+如果无法验证某个外部工具（例如 Token Studio）的兼容性，只能表述为“符合当前导出结构”或“可尝试导入”，不能保证第三方工具一定兼容。
 
 **执行脚本**:
 
@@ -698,6 +775,13 @@ design_system:
 
 ### Step D: 交互状态触探
 
+交互分析分为两层：
+
+1. **静态线索层**：调用 `extractors/interactive-states.js`，识别可交互元素、可聚焦元素、ARIA 状态、transition 和可能的事件入口；该脚本不会主动触发动作。
+2. **动态验证层**：由浏览器工具在安全动作白名单内执行 `hover`、`focus`、`scroll`、打开菜单和切换 Tab，并记录前后截图或 computed style 差异。
+
+默认禁止自动执行提交表单、支付、删除、发送消息、修改账户设置或其他不可逆操作。普通链接点击需要目标明确且可恢复。
+
 **目的**: 通过 Playwright 自动化遍历主要交互元素，抓取 hover/click/focus 状态前后的样式变化和 transition/animation 属性，反推微交互动效参数。
 
 **执行流程**:
@@ -906,6 +990,8 @@ interactions:
 
 ### Step E: 网络拦截与 API 数据模型提取 (Network Interception)
 
+优先调用 `extractors/network-schema.js`。宿主网络监听器必须把允许分析的 JSON 响应样本写入 `window.__uiLayoutCloneResponses`；Extractor 只做脱敏和结构推断，不负责获取认证凭据。
+
 **目的**: 在 Playwright 会话期间拦截 XHR/Fetch 请求，提取 API 响应结构并推断数据模型（Data Schema）。
 
 **使用场景**: 当目标站点是 SPA（单页应用）或使用 REST/GraphQL API 时，提取其数据结构用于生成 Mock 数据和类型定义。
@@ -931,7 +1017,7 @@ interactions:
        const contentType = response.headers()['content-type'] || '';
        if (contentType.includes('application/json')) {
          const body = await response.json();
-         // 存储到 window.__apiCapture 数组
+         // 存储到 window.__uiLayoutCloneResponses 数组
        }
      })
   2. page.goto(url) → 等待 load
@@ -939,7 +1025,7 @@ interactions:
   4. 等待 page.waitForTimeout(3000)
   5. 执行交互操作（点击、滚动、导航）触发更多 API 请求
   6. 等待 page.waitForTimeout(2000)
-  7. 提取 window.__apiCapture 数据
+   7. 提取 window.__uiLayoutCloneResponses 数据
 ```
 
 **数据结构推断脚本**:
@@ -947,7 +1033,7 @@ interactions:
 ```javascript
 // ExecuteScript: 分析拦截到的 API 响应
 (() => {
-  const responses = window.__apiCapture || [];
+  const responses = window.__uiLayoutCloneResponses || [];
 
   // 按路径分组
   const grouped = {};
@@ -1096,7 +1182,7 @@ data_models:
 ## Responsive Behavior
 <!-- 对比 1440px 和 375px 两个视口下的结构差异 -->
 
-## Site Structure
+## Site Map
 <!-- Step A.5 站点地图：页面列表、导航层级、路由关系 -->
 
 ## Data Models
@@ -1520,67 +1606,368 @@ window.electronAPI.minimize();
 ## Gestures (if applicable)
 ## Electron (if applicable)
 ## Data Models (v7.0.0 新增)
-## Site Structure (v7.0.0 新增)
+## Site Map (v7.1.0)
 ```
 
 ## Phase 2: 目标项目分析
 
-**输入**: 用户项目的路径
+**输入**: 用户项目路径、空项目目录、静态 HTML 项目，或用户指定的页面/区域。
 
-### 2.1 技术栈识别
+**目标**: 在生成代码前确认目标项目的运行方式、可复用能力、业务边界和安全修改范围。Phase 2 不只扫描技术栈，还必须判断哪些内容可以改、哪些内容必须保留。
 
-同 Phase 1.1，额外识别：
-- 现有组件库（antd, shadcn, MUI 等）
-- CSS 方案（CSS Modules / Tailwind / styled-components / 原生 CSS）
-- TypeScript 是否启用
+### 2.1 判断目标项目类型
 
-### 2.2 现有设计系统
+先判断目标项目属于以下哪一种：
+
+| 类型 | 判断条件 | 处理方式 |
+|------|----------|----------|
+| existing-project | 存在 package.json、源码目录和构建配置 | 完整分析现有技术栈和运行状态 |
+| empty-project | 目录为空或只有少量基础文件 | 创建最小目标分析，沿用用户指定或默认技术栈 |
+| static-html | 主要由 HTML、CSS、JS 文件组成 | 使用原生 HTML/CSS/JS 方案，避免引入框架 |
+| partial-project | 只有部分页面或组件 | 分析可用部分，并标记缺失能力 |
+| unknown | 无法可靠判断 | 只有在会影响生成方案时才询问用户 |
+
+如果目标是空项目且用户没有指定技术栈，默认选择当前环境已有、最少依赖且最容易运行的方案，并在生成前说明该假设。
+
+### 2.2 技术栈与工程能力识别
+
+同 Phase 1.1 扫描基础技术栈，额外识别：
+
+- 框架：React、Vue、Svelte、Next.js、Nuxt 等
+- 语言：JavaScript、TypeScript
+- 构建工具：Vite、Next、Nuxt、Webpack、Parcel
+- 包管理器：npm、pnpm、yarn、bun
+- 路由：React Router、Next Router、Vue Router 等
+- CSS 方案：原生 CSS、CSS Modules、SCSS、Tailwind、styled-components、Emotion
+- 组件库：Ant Design、MUI、shadcn、Element Plus 等
+- 图标库：Lucide、Heroicons、Font Awesome 等
+- 动画库：GSAP、Framer Motion、React Spring、Lottie 等
+- 状态管理：Redux、Zustand、Jotai、Pinia、Vuex 等
+- 数据请求：Fetch、Axios、SWR、React Query、Apollo 等
+- 测试工具：Vitest、Jest、Playwright、Cypress 等
+- Electron 或其他桌面端运行时
+
+### 2.3 运行时与入口检查
+
+对于可运行项目，执行以下检查；如果当前环境没有对应工具，执行可用的静态检查并记录降级原因：
+
+1. 确认依赖是否已安装，识别正确的启动命令
+2. 启动开发服务器或使用项目已有的预览命令
+3. 确认默认入口、路由和目标页面
+4. 检查启动错误、编译错误、控制台错误和资源加载错误
+5. 在桌面端和移动端基准视口截取当前页面
+6. 记录页面的加载态、空状态、错误态和主要交互状态
+
+运行时检查结果必须写入 `target.md` 的 `Runtime Status`，不能只根据源码推断项目可用性。
+
+### 2.4 现有设计系统
 
 ```
 Grep pattern="var\(--"  →  现有 CSS 变量
-Grep pattern="theme|tokens|design-system"  →  是否有 token 系统
-Glob pattern="**/tokens/**" / "**/theme/**"  →  token 文件
-Glob pattern="**/globals.css" / "**/variables.css"  →  全局样式
+Grep pattern="theme|tokens|design-system"  →  主题和 token 系统
+Glob pattern="**/tokens/**" / "**/theme/**"  →  token 和主题文件
+Glob pattern="**/globals.css" / "**/variables.css"  →  全局样式文件
+Grep pattern="font-family|font-size|line-height"  →  排版系统
+Grep pattern="spacing|breakpoint|radius|shadow"  →  间距、断点、圆角和阴影定义
 ```
 
-### 2.3 确定替换范围
+提取颜色、字体、字号、字重、行高、间距、断点、圆角、阴影和主题切换方式。已有 token 必须优先复用，不得为了匹配参考图而无条件覆盖全局设计系统。
 
-**必须询问用户**:
-- 是替换整个页面还是某个区域？
-- 参考项目的哪些部分需要克隆？
-- 有没有不能动的部分（已有功能/逻辑）？
+### 2.5 可复用资产清单
 
-### 2.4 现有交互与状态检测
+列出可以直接复用的内容：
+
+- 组件：Button、Input、Modal、Card、Table、Layout 等
+- Hooks：认证、主题、请求、媒体查询、滚动等 hooks
+- 工具函数：className 合并、格式化、请求封装等
+- 资源：Logo、图标、图片、字体、动画和模型
+- 页面模板：已有 Layout、Header、Footer、Sidebar
+
+生成前优先复用这些资产，避免重复实现或引入新的替代组件。
+
+### 2.6 现有交互、状态和业务边界
 
 ```
-Grep pattern="gsap|framer-motion|anime\.js"  →  已有动画库
-Grep pattern="createStore|configureStore|defineStore"  →  已有状态库
-Grep pattern="onClick|onChange|onSubmit"  →  已有交互模式
-Grep pattern="useState|useReducer|ref\("  →  已有状态模式
-Grep pattern="electron|BrowserWindow|ipcMain"  →  已有 Electron 配置
+Grep pattern="onClick|onChange|onSubmit|addEventListener"  →  交互事件
+Grep pattern="useState|useReducer|ref\(|reactive\(|computed\("  →  局部状态
+Grep pattern="createStore|configureStore|defineStore|create\("  →  全局状态
+Grep pattern="fetch\(|axios|useQuery|useSWR|graphql"  →  数据请求边界
+Grep pattern="gsap|framer-motion|anime\.js|react-spring"  →  动画方案
+Grep pattern="electron|BrowserWindow|ipcMain"  →  Electron 配置
 ```
 
-**目的**: 检测目标项目已使用的方案，避免冲突和重复引入。
+记录已有的交互、状态、API 请求、表单逻辑和业务组件。视觉复刻默认不得破坏这些逻辑；如果必须调整，必须在 `Protected Areas` 或 `Constraints` 中说明原因。
 
-### 2.5 写入 target.md
+### 2.7 确定可修改区域与保护区域
+
+如果用户已经明确修改范围，直接采用用户范围，不重复询问。只有在范围不明确、存在多个可能入口，或修改可能破坏业务逻辑时才询问。
+
+必须将范围整理为：
+
+```yaml
+replaceable_areas:
+  - path: "src/pages/Home.tsx"
+    scope: "whole-page"
+    allowed_changes:
+      - layout
+      - styles
+      - local-interactions
+
+protected_areas:
+  - path: "src/services/api.ts"
+    reason: "保留现有数据请求协议"
+```
+
+默认保护以下内容：认证、API 协议、路由契约、全局状态、业务数据结构和用户未授权的页面。只在用户明确要求时修改这些内容。
+
+### 2.8 写入 target.md
 
 ```markdown
 # Target Analysis: [项目名]
 
+## Project Type
+- existing-project / empty-project / static-html / partial-project
+- runnable: yes/no
+- entry: [入口路径]
+
 ## Tech Stack
+- framework:
+- language:
+- build-tool:
+- package-manager:
+- router:
+- css-solution:
+- component-library:
+- icon-library:
+- animation-library:
+- state-management:
+- data-fetching:
+
+## Runtime Status
+- dev-server:
+- routes:
+- startup-errors:
+- render-status:
+- reference-screenshots:
+
 ## Existing Design System
+- colors:
+- typography:
+- spacing:
+- breakpoints:
+- tokens:
+
+## Reusable Assets
+- components:
+- hooks:
+- utilities:
+- images:
+- fonts:
+
 ## Existing Interactions & State
+- interactions:
+- global-state:
+- local-state:
+- api-boundaries:
+- protected-business-logic:
+
 ## Replaceable Areas
+- path:
+- scope:
+- allowed-changes:
+
+## Protected Areas
+- path:
+- reason:
+
 ## Constraints
+- no-new-dependencies:
+- preserve-routing:
+- preserve-api:
+- preserve-business-logic:
+- inferred-assumptions:
 ```
+
+## v7.2.0 执行增强
+
+### Extractors 提取器规范
+
+具体提取逻辑应优先复用稳定的 Extractor，而不是每次临时编写不一致的脚本。可用提取器包括：
+
+| Extractor | 用途 | 输出 |
+|---|---|---|
+| `extractSemanticDOM` | 提取语义 DOM 和组件层级 | `semantic_tree` |
+| `extractDesignTokens` | 提取 computed style 和视觉变量 | `tokens.json` |
+| `extractInteractiveStates` | 记录 hover、focus、click、scroll 状态 | `interactions` |
+| `interceptNetworkRequests` | 捕获允许分析的 JSON 请求并推断 Schema | `data_models` |
+| `extractSiteMap` | 提取内部页面和导航关系 | `site_map` |
+| `extractRuntimeAssets` | 收集图片、字体、动画、模型和音频资源 | `assets` |
+
+Extractor 必须遵守以下规则：
+
+- 输入、输出和失败状态必须明确
+- 不抓取不必要的敏感数据、Cookie、Token 或个人信息
+- 不能将样本数据直接当作完整 API Schema
+- 提取失败时返回部分结果和 `limitations`，不能伪造完整结果
+- 复杂脚本应放在 Skill 的 `extractors/` 或 `references/` 目录中，由流程文档调用
+
+每个 Extractor 的标准输出：
+
+```yaml
+extractor_result:
+  name: "extractSemanticDOM"
+  status: "success | partial | failed | unavailable"
+  data: {}
+  evidence: []
+  limitations: []
+```
+
+### Advanced 模式共享上下文协议
+
+仅当 Phase 3 选择 `Advanced` 模式时，必须创建 `.layout-clone/shared-context.json`。Simple 模式不创建，Standard 模式按需创建。
+
+```json
+{
+  "version": "7.2.0",
+  "mode": "advanced",
+  "strategy": "full-clone",
+  "targetProject": {
+    "framework": "react",
+    "language": "typescript",
+    "cssSolution": "existing-project-solution",
+    "stateManagement": "existing-solution",
+    "animationLibrary": "existing-solution"
+  },
+  "reference": {
+    "analysisPath": ".layout-clone/reference.md",
+    "tokensPath": ".layout-clone/tokens.json"
+  },
+  "planPath": ".layout-clone/implementation-plan.md",
+  "components": {},
+  "protectedAreas": [],
+  "constraints": {
+    "noNewDependencies": true,
+    "preserveBusinessLogic": true,
+    "assignedFilesOnly": true
+  }
+}
+```
+
+子 Agent 必须只修改分配给自己的文件，并返回文件清单、接口要求、依赖和未完成项。主 Agent 负责合并、冲突处理、构建检查和最终验证。
+
+### Diff & Patch 修改安全机制
+
+生成或修改已有项目时，必须优先采用局部修改：
+
+1. 先在 `implementation-plan.md` 中列出文件和修改范围
+2. 优先创建独立组件或样式模块
+3. 对大型业务文件使用局部 Patch，不得无理由全量覆写
+4. 修改前识别 API、认证、路由、全局状态和业务数据边界
+5. 修改后检查 diff，确认没有越过 `protected_areas`
+6. 输出修改摘要和未解决冲突
+
+如果实现必须修改受保护文件，必须暂停生成并请求用户确认。没有确认时，只能提供补丁建议或在独立文件中实现替代方案。
 
 ## Phase 3: 多代理协作生成架构 (Multi-Agent Swarm)
 
 **前置**: 读取 `.layout-clone/reference.md` 和 `.layout-clone/target.md`（以及 `.layout-clone/tokens.json`）
 
-**核心原则**: 禁止单一 Agent 在面对复杂页面时「强行单干」，必须通过 DelegateTask 派发子任务，避免 Token 超载和输出质量下降。
+### 3.0 生成模式选择
 
-### 策略选择
+根据页面复杂度选择生成模式，不默认启用多 Agent：
+
+| 模式 | 适用场景 | 执行方式 |
+|------|----------|----------|
+| Simple | 单页面、静态布局、图片或设计稿克隆 | 主 Agent 顺序完成分析、生成和验证 |
+| Standard | 有多个组件、基础交互和响应式要求的页面 | 主 Agent 负责整体实现，必要时调用一个专用子 Agent |
+| Advanced | 多页面、复杂状态、3D、Canvas、API 或 Electron | 主 Agent 负责架构和集成，按模块并行调用子 Agent |
+
+优先选择能够完成任务的最低复杂度模式。只有出现多个相互独立的模块、上下文规模过大，或用户明确要求协作时，才使用 `DelegateTask`。
+
+### 3.1 生成前实现计划
+
+在写入目标项目之前，必须创建 `.layout-clone/implementation-plan.md`，并记录：
+
+```yaml
+implementation_plan:
+  mode: "simple | standard | advanced"
+  strategy: "full-clone | structure-upgrade | inspiration | interaction-first | image-visual-clone"
+  target_area: "目标页面或区域"
+  components:
+    - name: "Header"
+      source: "reference | existing | new"
+  files_to_create: []
+  files_to_modify: []
+  protected_files: []
+  allowed_dependencies: []
+  inferred_behavior: []
+  unknowns: []
+  validation_points:
+    - "desktop screenshot"
+    - "mobile screenshot"
+```
+
+计划必须遵守 Phase 2 的 `Replaceable Areas`、`Protected Areas` 和项目约束。计划完成后再开始生成代码，不得先修改文件再补计划。
+
+### 3.2 图片与设计稿生成策略
+
+当参考输入是图片、截图或设计稿时，使用 `image-visual-clone` 策略：
+
+1. 将视觉内容拆分为区域、组件、文字层级和装饰元素
+2. 将可见事实、合理推断和未知信息分别记录
+3. 优先复刻布局、尺寸、颜色、间距、字体层级和响应式结构
+4. 仅为可观察的控件生成基础交互；推断交互必须记录在 `inferred_behavior`
+5. 不伪造真实 API、DOM 结构、字体文件或不可见状态
+6. 生成后通过固定视口截图对比修正视觉差异
+
+图片输入的信息分类格式：
+
+```yaml
+observation:
+  - "可从图片直接观察到的内容"
+inference:
+  - "根据常见 UI 模式推断的内容"
+unknown:
+  - "图片无法确认的内容"
+```
+
+### 3.3 核心生成顺序
+
+所有模式都遵循以下顺序；高级模块只能在核心页面可运行后加入：
+
+1. 读取 `reference.md`、`target.md`、`tokens.json` 和 `implementation-plan.md`
+2. 生成或映射设计变量
+3. 生成页面骨架和路由入口
+4. 生成共享布局与页面组件
+5. 生成样式、响应式规则和基础交互
+6. 接入已有状态、API 和业务逻辑
+7. 按需加入动画、数据可视化、3D 或桌面端能力
+8. 执行导入、类型、构建和链接检查
+9. 启动项目并进行桌面端和移动端截图验证
+10. 根据差异修正，记录仍未还原的内容
+
+### 3.4 文件与依赖边界
+
+- 只能创建或修改 `implementation-plan.md` 中列出的文件
+- 默认不修改 API、认证、路由契约、全局状态和业务数据结构
+- 优先复用目标项目已有组件、Hooks、工具函数和设计变量
+- 不引入新依赖；确有必要时先记录原因并请求用户确认
+- 子 Agent 只能修改分配给自己的文件，不得覆盖主 Agent 或其他子 Agent 的文件
+
+### 3.5 多 Agent 协作规则
+
+仅在 `Advanced` 模式下，或 `Standard` 模式确实需要时使用 `DelegateTask`。每个子 Agent 必须接收实现计划和共享上下文，并返回：
+
+- 修改或创建的文件
+- 使用的现有依赖
+- 对其他模块的接口要求
+- 未完成项和潜在冲突
+
+主 Agent 负责最终集成、冲突解决、运行验证和视觉验收。
+
+### Legacy strategy mapping (reference only)
+
+旧版 A/B/C/D 策略已由 `3.0` 的 Simple / Standard / Advanced 模式取代。仅用于将历史配置映射到新模式，不得作为独立执行流程。
 
 | 场景 | 策略 | 说明 |
 |------|------|------|
@@ -1589,9 +1976,11 @@ Grep pattern="electron|BrowserWindow|ipcMain"  →  已有 Electron 配置
 | 不同技术栈 或 只需要灵感 | C: 灵感提取 | 只提取核心设计元素，适配到目标 |
 | 需要克隆完整功能（交互+动画+状态） | D: 交互优先克隆 | 保留参考项目的交互逻辑，适配到目标技术栈 |
 
-**如果不确定，询问用户选择哪种策略。**
+如果用户没有指定策略，优先根据参考输入类型、目标项目类型和视觉一致性要求自动选择；只有不同策略会导致明显不同的工作范围时才询问用户。
 
-### 多代理架构
+### Legacy multi-agent notes
+
+以下旧版分工内容仅保留为兼容说明；实际委派必须遵循 `3.5 多 Agent 协作规则` 和 v7.2.0 的 `shared-context.json` 协议。
 
 **Main Agent (协调者)**:
 - 负责整体架构决策和页面骨架生成
@@ -1680,7 +2069,7 @@ Phase 3.3: Merge & Review
 
 ### 多页面协调
 
-**当 site_structure 存在时**:
+**当 `site_map` 存在时**:
 
 1. Main Agent 生成共享布局组件（Header、Footer、Layout）
 2. 写入 shared-context.json 包含导航链接列表
@@ -1734,6 +2123,71 @@ Phase 3.3: Merge & Review
 ```
 
 ## Phase 4: 质量检查
+
+Phase 4 必须在代码生成完成后实际执行，不能只勾选理论上的检查项。根据生成模式选择检查深度：
+
+| 检查级别 | 适用模式 | 必须完成的内容 |
+|----------|----------|----------------|
+| Basic | Simple | 构建检查、页面可加载、基础响应式、截图验证 |
+| Standard | Standard | Basic 全部内容，加交互、无障碍、性能和组件集成检查 |
+| Full | Advanced | Standard 全部内容，加 API、多页面、动画、Canvas、3D 或 Electron 专项检查 |
+
+### 4.1 基础运行检查
+
+- [ ] 依赖和构建命令可用
+- [ ] 项目可以启动或生成静态产物
+- [ ] 目标页面可以访问
+- [ ] 无新增编译错误、运行时错误或明显资源加载错误
+- [ ] 生成文件都位于实现计划允许的范围内
+- [ ] 没有未经确认的新依赖
+
+### 4.2 截图与视觉验证
+
+必须在至少两个固定视口进行验证：
+
+- 桌面端：1440×900
+- 移动端：375×812
+
+验证顺序：
+
+1. 启动目标项目并访问目标页面
+2. 截取生成页面的固定视口截图
+3. 与参考截图、参考图片或 `reference.md` 中的布局描述进行对比
+4. 检查宏观布局、内容宽度、主要间距、字体层级、颜色和组件尺寸
+5. 修正明显差异后重新截图
+6. 将最终截图路径和仍存在的差异写入 `.layout-clone/validation.md`
+
+如果没有可用的视觉对比工具，至少使用 DOM 尺寸、computed style 和截图人工检查完成降级验证，并注明验证方式。
+
+### 4.3 差异记录格式
+
+```yaml
+validation:
+  viewports:
+    - name: "desktop"
+      size: "1440x900"
+      screenshot: "path/to/desktop.png"
+      status: "pass | needs-fix"
+    - name: "mobile"
+      size: "375x812"
+      screenshot: "path/to/mobile.png"
+      status: "pass | needs-fix"
+  differences:
+    - area: "hero"
+      type: "spacing | typography | color | layout | interaction"
+      expected: "参考页面中的表现"
+      actual: "生成页面中的表现"
+      action: "已修正 | 保留差异 | 无法确认"
+  limitations: []
+```
+
+### 4.4 结果判定
+
+- `pass`：页面可运行，核心布局和主要交互已验证，无阻塞问题
+- `needs-fix`：存在明显视觉、功能或构建问题，必须继续修正
+- `blocked`：受缺失资源、不可访问 API、登录限制或环境能力限制影响，需记录原因后交付
+
+不能因为无法访问参考源码或缺少视觉工具，就直接声称视觉一致；必须将相关内容标记为推断、未验证或限制。
 
 生成完成后，逐项检查：
 
@@ -1800,7 +2254,7 @@ Phase 3.3: Merge & Review
 | 从线上站点提取设计灵感 | ✓ (v7.0 Dynamic Extraction) | - |
 | 逆向工程 API 数据模型 | ✓ (v7.0 Step E) | - |
 | 导出 W3C 设计令牌 | ✓ (v7.0 Step C.2) | - |
-| 多页面站点克隆 | ✓ (v7.0 Step A.5) | - |
+| 多页面站点克隆 | ✓ (v7.1 Step A.5) | - |
 | 多代理协作生成 | ✓ (v7.0 Phase 3) | - |
 | 对已有页面做精细视觉调整 | - | → `impeccable` |
 | 从零设计一个 premium 风格页面 | - | → `looks-expensive` |
