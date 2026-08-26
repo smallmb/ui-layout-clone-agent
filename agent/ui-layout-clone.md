@@ -1,6 +1,6 @@
 ---
 name: ui-layout-clone
-version: 7.2.0
+version: 1.0.0
 description: |
   全栈产品反向工程引擎：从本地源码（AST/Grep 静态分析）或线上已编译站点（无头浏览器 + 视觉模型 + DOM 嗅探 + 网络拦截）提取
   布局、设计系统、交互行为、动画效果、状态管理、动态渲染模式、数据流与 API Schema、
@@ -9,9 +9,9 @@ description: |
   适配用户技术栈生成完整的界面代码。
   支持 React/Vue/Svelte/HTML + Three.js + Canvas + Electron 等项目，
   覆盖 CSS 布局 + JS 交互 + 动画系统 + 状态管理 + 3D/2D 渲染 + 音频可视化 + 桌面端的完整迁移。
-  v7.2.0：增加 Extractors 规范、Advanced 共享上下文协议与 Diff/Patch 安全修改机制；
-  v7.1.0：核心流程分层、图片视觉复刻、目标项目运行分析、实现计划与验证闭环；
-  v7.0.0 新增：数据驱动嗅探（NetworkInterception 拦截 XHR/Fetch 提取 API Schema）、
+  v1.0.0：首个稳定公开版本，包含图片证据 Extractor、Visual Diff 数据契约、
+  Extractors 规范、Advanced 共享上下文协议、Diff/Patch 安全修改机制、
+  图片视觉复刻、目标项目运行分析、实现计划与验证闭环；
   W3C Design Tokens 标准导出（tokens.json）、多智能体协同架构（DelegateTask 分工生成）、
   多页面站点地图提取与导航互通协议。
 user-invocable: true
@@ -180,6 +180,68 @@ image_reference:
 ```
 
 如果图片分辨率不足、存在裁切、文字无法识别或包含复杂图形，必须记录在 `limitations` 中，不得用虚构信息补全。
+
+### Image Evidence Layer v1.0
+
+图片模式必须优先生成 `.layout-clone/image-evidence.json`，并遵循 `schemas/image-evidence.schema.json`。该文件是确定性测量、模型解释和后续视觉 Diff 之间的通用数据契约，不绑定电商、SaaS、官网或移动端等具体业务。
+
+执行原则：
+
+- CV 或工具直接测量的内容写入 `observed`
+- LLM 或算法推导的内容写入 `inferred`
+- 无法从图片确认的内容写入 `unknown`
+- 所有推断都必须带 `confidence` 和 `evidence_refs`（如有）
+- 所有坐标使用左上角原点和输入图片像素单位
+- 图片经过缩放、裁切、去噪或颜色转换时，必须写入 `preprocessing`
+- CV 负责测量，LLM 负责语义解释，浏览器负责运行验证，Diff 负责纠偏
+
+标准顶层结构：
+
+```json
+{
+  "$schema": "./schemas/image-evidence.schema.json",
+  "version": "1.0.0",
+  "metadata": {
+    "source_file": "input.png",
+    "viewport": { "width": 1440, "height": 900 },
+    "coordinate_system": { "origin": "top-left", "unit": "pixel", "scale": 1 }
+  },
+  "preprocessing": {},
+  "observed": {
+    "typography": [],
+    "color_palette": [],
+    "structural_regions": [],
+    "assets": []
+  },
+  "inferred": {
+    "semantic_roles": [],
+    "layout_hypotheses": [],
+    "design_tokens": {}
+  },
+  "unknown": [],
+  "limitations": []
+}
+```
+
+OCR 的像素高度不能直接等同于 CSS `font-size`；颜色采样不能单独决定 background、foreground 或 border 语义；边缘检测不能单独决定区域是 Button、Card 还是普通 Container。这些内容必须进入 `inferred` 并保留置信度。
+
+### 图像工具链能力探测
+
+执行图片分析前，先检查本地或服务器是否具备 OCR、图像处理和 Diff 工具。探测结果写入 `image-evidence.json` 的 `toolchain` 字段：
+
+```yaml
+toolchain:
+  ocr: "available | unavailable | cloud-only"
+  image_processing: "available | unavailable"
+  pixel_diff: "available | unavailable"
+  fallback: []
+```
+
+没有 Tesseract、OpenCV、Sharp、pixelmatch 或 SSIM 时，不得假设它们存在；继续执行可用的测量，并记录降级项。
+
+默认调用 `extractors/extract-image-evidence.js` 生成基础证据文件。无第三方依赖时至少提取图片格式、尺寸、文件大小和工具链状态；OCR、颜色采样、区域检测和像素 Diff 通过可选适配器扩展。输出必须通过 `schemas/image-evidence.schema.json` 的必填字段检查。
+
+Phase B 使用 `schemas/visual-diff.schema.json` 记录参考截图、生成截图、差异率、可选 SSIM、区域差异和限制。Schema 先行，不强制当前环境安装特定 PixelMatch、Sharp 或 SSIM 实现。
 
 ---
 
@@ -1788,7 +1850,7 @@ protected_areas:
 - inferred-assumptions:
 ```
 
-## v7.2.0 执行增强
+## v1.0.0 执行增强
 
 ### Extractors 提取器规范
 
@@ -1828,7 +1890,7 @@ extractor_result:
 
 ```json
 {
-  "version": "7.2.0",
+  "version": "1.0.0",
   "mode": "advanced",
   "strategy": "full-clone",
   "targetProject": {
@@ -2032,7 +2094,7 @@ Phase 3.3: Merge & Review
 
 ```json
 {
-  "version": "7.0.0",
+  "version": "1.0.0",
   "strategy": "A",
   "targetProject": {
     "framework": "react",

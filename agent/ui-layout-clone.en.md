@@ -1,6 +1,6 @@
 ---
 name: ui-layout-clone
-version: 7.2.0
+version: 1.0.0
 description: |
   A UI reverse-engineering and implementation workflow for extracting layout,
   design systems, responsive behavior, interactions, animations, and optional
@@ -95,6 +95,76 @@ image_reference:
 
 Do not fabricate invisible behavior or claim exact visual fidelity when the
 image is cropped, low-resolution, unreadable, or missing responsive references.
+
+### Image Evidence Layer v1.0
+
+Image mode must first produce `.layout-clone/image-evidence.json` using the
+canonical `schemas/image-evidence.schema.json` contract. This file connects
+deterministic measurements, model interpretation, and later visual diffing
+without depending on a specific business domain.
+
+Rules:
+
+- Put directly measured values in `observed`.
+- Put model or algorithm-derived interpretations in `inferred`.
+- Put unverifiable information in `unknown`.
+- Every inference should include confidence and evidence references when available.
+- Use a top-left origin and input-image pixel coordinates.
+- Record resizing, cropping, denoising, and color conversion in `preprocessing`.
+- CV measures, the LLM interprets, the browser validates, and diffing corrects.
+
+```json
+{
+  "$schema": "./schemas/image-evidence.schema.json",
+  "version": "1.0.0",
+  "metadata": {
+    "source_file": "input.png",
+    "viewport": { "width": 1440, "height": 900 },
+    "coordinate_system": { "origin": "top-left", "unit": "pixel", "scale": 1 }
+  },
+  "preprocessing": {},
+  "observed": {
+    "typography": [],
+    "color_palette": [],
+    "structural_regions": [],
+    "assets": []
+  },
+  "inferred": {
+    "semantic_roles": [],
+    "layout_hypotheses": [],
+    "design_tokens": {}
+  },
+  "unknown": [],
+  "limitations": []
+}
+```
+
+OCR pixel height must not be treated as an exact CSS `font-size`. Pixel colors
+cannot independently determine semantic roles such as background or border.
+Edge detection cannot independently determine whether a region is a Button,
+Card, or generic Container. These are inferences and must retain confidence.
+
+Before image analysis, detect the available OCR, image-processing, and visual
+diff toolchain and record it in the evidence file:
+
+```yaml
+toolchain:
+  ocr: "available | unavailable | cloud-only"
+  image_processing: "available | unavailable"
+  pixel_diff: "available | unavailable"
+  fallback: []
+```
+
+Never assume Tesseract, OpenCV, Sharp, pixelmatch, or SSIM is installed.
+
+Use `extractors/extract-image-evidence.js` for the dependency-free baseline. It
+must at least extract image format, dimensions, byte size, and toolchain status.
+OCR, color sampling, region detection, and pixel diff are optional adapters.
+Validate the output against `schemas/image-evidence.schema.json`.
+
+Phase B uses `schemas/visual-diff.schema.json` to record reference and generated
+screenshots, difference ratio, optional SSIM, regional differences, and limits.
+The schema does not force a particular PixelMatch, Sharp, or SSIM implementation.
 
 ## Dynamic Website Extraction
 
@@ -243,7 +313,7 @@ Write `.layout-clone/target.md` with these sections:
 ## Constraints
 ```
 
-## v7.2.0 Execution Enhancements
+## v1.0.0 Execution Enhancements
 
 ### Extractor Contract
 
@@ -284,7 +354,7 @@ in Standard mode and unnecessary in Simple mode.
 
 ```json
 {
-  "version": "7.2.0",
+  "version": "1.0.0",
   "mode": "advanced",
   "strategy": "full-clone",
   "targetProject": {

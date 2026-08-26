@@ -1,6 +1,6 @@
-# 🧬 UI Layout Clone Agent (v7.2.0)
+# 🧬 UI Layout Clone Agent (v1.0.0)
 
-![Version](https://img.shields.io/badge/version-7.2.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Type](https://img.shields.io/badge/type-AI_Agent_Skill-orange.svg)
 ![Architecture](https://img.shields.io/badge/architecture-Multi--Agent_Swarm-purple.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -9,7 +9,7 @@ An enterprise-grade, full-stack product reverse engineering engine powered by LL
 
 Unlike traditional code generators, this Agent Skill operates on a **Dual-Track Architecture**, seamlessly handling both local AST/Grep static analysis and dynamic Headless Browser sniffing (Playwright + Vision Model + Network Interception) for production URLs.
 
-## ✨ Core Capabilities in v7.2.0
+## ✨ Core Capabilities in v1.0.0
 
 - **🌐 Dynamic Site Extraction**: Extracts semantic DOM, micro-interactions, and animations directly from compiled production URLs using Headless Browsers.
 - **📡 Data-Driven Sniffing (Network Interception)**: Intercepts XHR/Fetch requests during the extraction phase to infer API schemas and generate Mock Data structures.
