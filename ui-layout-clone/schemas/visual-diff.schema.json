@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/smallmb/ui-layout-clone-agent/main/ui-layout-clone/schemas/visual-diff.schema.json",
+  "title": "UI Layout Clone Visual Diff",
+  "description": "参考图与生成页面截图之间的视觉差异记录契约。",
+  "type": "object",
+  "required": ["version", "reference", "generated", "metrics", "regions", "status", "limitations"],
+  "properties": {
+    "version": { "const": "1.0.0" },
+    "reference": { "$ref": "#/$defs/imageRef" },
+    "generated": { "$ref": "#/$defs/imageRef" },
+    "metrics": {
+      "type": "object",
+      "required": ["pixelDifferenceRatio", "ssim"],
+      "properties": {
+        "pixelDifferenceRatio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "ssim": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "changedPixelCount": { "type": ["integer", "null"], "minimum": 0 },
+        "totalPixelCount": { "type": ["integer", "null"], "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "regions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["region_id", "bbox", "diff_ratio"],
+        "properties": {
+          "region_id": { "type": "string" },
+          "bbox": { "$ref": "#/$defs/bbox" },
+          "diff_ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+          "likely_cause": { "type": ["string", "null"] },
+          "suggested_patch": { "type": ["string", "null"] }
+        },
+        "additionalProperties": true
+      }
+    },
+    "diff_image": { "type": ["string", "null"] },
+    "status": { "enum": ["pass", "needs-fix", "blocked", "unavailable"] },
+    "limitations": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "bbox": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "number", "minimum": 0 },
+        { "type": "number", "minimum": 0 },
+        { "type": "number", "minimum": 0 },
+        { "type": "number", "minimum": 0 }
+      ],
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "imageRef": {
+      "type": "object",
+      "required": ["path", "width", "height"],
+      "properties": {
+        "path": { "type": "string" },
+        "width": { "type": "number", "exclusiveMinimum": 0 },
+        "height": { "type": "number", "exclusiveMinimum": 0 },
+        "viewport": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/smallmb/ui-layout-clone-agent/main/ui-layout-clone/schemas/image-evidence.schema.json",
+  "title": "UI Layout Clone Image Evidence",
+  "description": "通用图片复刻的视觉证据契约，区分直接观测值与推断值。",
+  "type": "object",
+  "required": ["version", "metadata", "observed", "inferred", "unknown", "limitations"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "const": "1.0.0" },
+    "metadata": {
+      "type": "object",
+      "required": ["source_file", "viewport", "coordinate_system"],
+      "properties": {
+        "source_file": { "type": "string" },
+        "viewport": {
+          "type": "object",
+          "required": ["width", "height"],
+          "properties": {
+            "width": { "type": "number", "exclusiveMinimum": 0 },
+            "height": { "type": "number", "exclusiveMinimum": 0 },
+            "device_type": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        "coordinate_system": {
+          "type": "object",
+          "required": ["origin", "unit", "scale"],
+          "properties": {
+            "origin": { "const": "top-left" },
+            "unit": { "const": "pixel" },
+            "scale": { "type": "number", "exclusiveMinimum": 0 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": true
+    },
+    "preprocessing": {
+      "type": "object",
+      "properties": {
+        "resized": { "type": "boolean" },
+        "cropped": { "type": "boolean" },
+        "denoised": { "type": "boolean" },
+        "color_profile": { "type": "string" },
+        "operations": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "toolchain": {
+      "type": "object",
+      "properties": {
+        "ocr": { "enum": ["available", "unavailable", "cloud-only"] },
+        "image_processing": { "enum": ["available", "unavailable"] },
+        "pixel_diff": { "enum": ["available", "unavailable"] },
+        "fallback": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "observed": {
+      "type": "object",
+      "properties": {
+        "typography": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" } },
+        "color_palette": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" } },
+        "structural_regions": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" } },
+        "assets": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" } }
+      },
+      "additionalProperties": true
+    },
+    "inferred": {
+      "type": "object",
+      "properties": {
+        "semantic_roles": { "type": "array", "items": { "$ref": "#/$defs/inferenceItem" } },
+        "layout_hypotheses": { "type": "array", "items": { "$ref": "#/$defs/inferenceItem" } },
+        "design_tokens": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "unknown": { "type": "array", "items": { "type": "string" } },
+    "limitations": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "bbox": {
+      "type": "array",
+      "prefixItems": [
+        { "type": "number", "minimum": 0 },
+        { "type": "number", "minimum": 0 },
+        { "type": "number", "minimum": 0 },
+        { "type": "number", "minimum": 0 }
+      ],
+      "minItems": 4,
+      "maxItems": 4
+    },
+    "evidenceItem": {
+      "type": "object",
+      "required": ["id", "bbox", "source"],
+      "properties": {
+        "id": { "type": "string" },
+        "bbox": { "$ref": "#/$defs/bbox" },
+        "source": { "type": "string" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "observed": { "type": "object" },
+        "suggested_action": {
+          "enum": ["exact-crop", "semantic-replacement", "approximate-vector", "ignore", "unknown"]
+        },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "inferenceItem": {
+      "type": "object",
+      "required": ["confidence"],
+      "properties": {
+        "id": { "type": "string" },
+        "value": {},
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence_refs": { "type": "array", "items": { "type": "string" } },
+        "reason": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

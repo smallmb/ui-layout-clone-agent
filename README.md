@@ -1,6 +1,6 @@
-# 🧬 UI Layout Clone Agent (v1.0.0)
+# 🧬 UI Layout Clone Agent (v1.1.0)
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
 ![Type](https://img.shields.io/badge/type-AI_Agent_Skill-orange.svg)
 ![Architecture](https://img.shields.io/badge/architecture-Multi--Agent_Swarm-purple.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -9,24 +9,29 @@ An enterprise-grade, full-stack product reverse engineering engine powered by LL
 
 Unlike traditional code generators, this Agent Skill operates on a **Dual-Track Architecture**, seamlessly handling both local AST/Grep static analysis and dynamic Headless Browser sniffing (Playwright + Vision Model + Network Interception) for production URLs.
 
-## ✨ Core Capabilities in v1.0.0
+## ✨ Core Capabilities
 
-- **🌐 Dynamic Site Extraction**: Extracts semantic DOM, micro-interactions, and animations directly from compiled production URLs using Headless Browsers.
+- **🌐 Dynamic Site Extraction**: Extracts semantic DOM, micro-interactions, and animations directly from compiled production URLs using a headless browser (Playwright MCP) plus a vision model.
 - **📡 Data-Driven Sniffing (Network Interception)**: Intercepts XHR/Fetch requests during the extraction phase to infer API schemas and generate Mock Data structures.
 - **🎨 W3C Design Tokens Export**: Reverse-engineers computed styles and exports a standard `tokens.json` directly compatible with Figma Token Studio.
-- **🤖 Multi-Agent Swarm Architecture**: Uses a `DelegateTask` system to prevent context overflow. The Main Agent handles layout and routing, while SubAgents simultaneously build 3D scenes, complex CSS charts, and interaction logic.
+- **🤖 Multi-Agent Generation**: Uses subagents to prevent context overflow on large tasks. The main agent handles layout and routing, while subagents take on 3D scenes, complex CSS charts, and interaction logic. Simple pages stay single-agent (see `references/multi-agent-swarm.md`).
 - **🗺️ Multi-Page Site Mapping**: Automatically extracts site structures and navigation rules to generate interconnected multi-page applications.
 - **🖼️ Image and Design Reference Cloning**: Supports screenshots and design images with explicit observation, inference, and unknown boundaries.
 - **🧩 Adaptive Workflow**: Uses Simple, Standard, and Advanced modes instead of forcing multi-agent execution for every task.
 - **🛡️ Protected Areas and Diff/Patch Safety**: Preserves APIs, authentication, routes, global state, and business logic by default.
 - **🔌 Standard Extractors**: Includes semantic DOM, design tokens, interaction states, network schema, and site-map extractors.
+- **📉 Graceful Degradation**: When Playwright MCP or a vision model is unavailable, the skill falls back to static analysis and records limitations instead of failing.
 
 ## 📂 Repository Structure
 
-- `/agent/ui-layout-clone.md` - The core Agent Skill instruction file. Import this into Cursor, Cline, or mimocode.
-- `/agent/ui-layout-clone.en.md` - English version of the core Skill.
-- `/agent/extractors` - Reusable browser-side extraction scripts and their execution contract.
-- `/examples/linear-clone` - A breathtaking 6-page, 1:1 replica of the Linear.app website. **Generated entirely by this Agent with ZERO external dependencies or images.**
+The skill follows the [Agent Skills](https://agentskills.io/specification) layout (`SKILL.md` + `scripts/` + `references/` + `schemas/`):
+
+- `/ui-layout-clone/SKILL.md` - The core Agent Skill: a routing document (<500 lines). Install the whole `ui-layout-clone/` directory.
+- `/ui-layout-clone/scripts/` - Reusable browser-side extraction scripts and their execution contract.
+- `/ui-layout-clone/references/` - On-demand reference docs (one level deep from `SKILL.md`): image extraction, dynamic URL sniffing, static analysis, target analysis, execution protocol, multi-agent generation, quality gates, output templates, and the English version of the skill.
+- `/ui-layout-clone/schemas/` - JSON schemas: image-evidence and visual-diff data contracts.
+- `/ui-layout-clone/evals/evals.json` - Starter eval cases (trigger / no-trigger / functional) for iterating with the skill-creator plugin.
+- `/examples/linear-clone` - A 6-page replica of the Linear.app website built with this skill. **Generated with zero external dependencies or images.**
 
 ## 🚀 The Linear Clone Showcase
 
@@ -39,13 +44,14 @@ The `/examples/linear-clone` directory demonstrates the absolute power of this A
 
 ### Quick Start (10 秒上手)
 
-1. **安装到你的 AI IDE**：将 `agent/ui-layout-clone.md` 拖入 Cursor / Cline / mimocode 的 Agent 配置目录
-2. **输入提示词**：
+1. **安装 skill**：把 `ui-layout-clone/` 整个目录复制到 `~/.claude/skills/`（个人）或项目里的 `.claude/skills/`（项目共享，目录名须为 `ui-layout-clone`），然后重启 Claude Code。Cursor / Cline 等支持 Agent Skills 的 IDE 同理。
+2. **环境要求（可选但推荐）**：线上 URL 动态提取需要 [Playwright MCP](https://github.com/microsoft/playwright-mcp)；图片语义分析需要多模态模型。缺失时 skill 会自动降级并记录限制，见 `ui-layout-clone/SKILL.md` 的"环境要求与降级策略"。
+3. **输入提示词**：
 
 > "克隆 https://linear.app 的首页，用纯 HTML + CSS 实现，使用 Strategy A（完全克隆）"
 
-3. **等待 Agent 自动执行**：视觉骨架分析 → 语义 DOM 提取 → 设计令牌反推 → 代码生成
-4. **查看输出**：`.layout-clone/` 目录下会生成 `reference.md` + `tokens.json` + 完整页面代码
+4. **等待 Agent 自动执行**：视觉骨架分析 → 语义 DOM 提取 → 设计令牌反推 → 代码生成
+5. **查看输出**：`.layout-clone/` 目录下会生成 `reference.md` + `tokens.json` + 完整页面代码
 
 ### 进阶用法
 
