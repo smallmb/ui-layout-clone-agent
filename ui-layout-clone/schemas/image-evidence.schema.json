@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/smallmb/ui-layout-clone-agent/main/schemas/image-evidence.schema.json",
+  "$id": "https://raw.githubusercontent.com/smallmb/ui-layout-clone-agent/main/ui-layout-clone/schemas/image-evidence.schema.json",
   "title": "UI Layout Clone Image Evidence",
   "description": "通用图片复刻的视觉证据契约，区分直接观测值与推断值。",
   "type": "object",

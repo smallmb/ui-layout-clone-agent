@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/smallmb/ui-layout-clone-agent/main/schemas/visual-diff.schema.json",
+  "$id": "https://raw.githubusercontent.com/smallmb/ui-layout-clone-agent/main/ui-layout-clone/schemas/visual-diff.schema.json",
   "title": "UI Layout Clone Visual Diff",
   "description": "参考图与生成页面截图之间的视觉差异记录契约。",
   "type": "object",

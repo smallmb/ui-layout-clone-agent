@@ -1,6 +1,6 @@
 # Reference Analysis: Linear.app
 
-> 提取方式: Dynamic Extraction (v6.0.0)
+> 提取方式: Dynamic Extraction (v1.1.0)
 > 提取时间: 2026-06-29T16:55:00Z
 > 目标 URL: https://linear.app/
 

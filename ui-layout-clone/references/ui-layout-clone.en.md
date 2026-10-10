@@ -1,6 +1,6 @@
 ---
 name: ui-layout-clone
-version: 1.0.0
+version: 1.1.0
 description: |
   A UI reverse-engineering and implementation workflow for extracting layout,
   design systems, responsive behavior, interactions, animations, and optional
@@ -157,7 +157,7 @@ toolchain:
 
 Never assume Tesseract, OpenCV, Sharp, pixelmatch, or SSIM is installed.
 
-Use `extractors/extract-image-evidence.js` for the dependency-free baseline. It
+Use `scripts/extract-image-evidence.js` for the dependency-free baseline. It
 must at least extract image format, dimensions, byte size, and toolchain status.
 OCR, color sampling, region detection, and pixel diff are optional adapters.
 Validate the output against `schemas/image-evidence.schema.json`.
@@ -201,7 +201,7 @@ pages and APIs as unverified.
 8. Capture JSON XHR/Fetch responses only when API analysis is requested and permitted.
 9. Write the findings to `.layout-clone/reference.md`.
 
-The scripts in `extractors/` are the canonical execution implementations.
+The scripts in `scripts/` are the canonical execution implementations.
 Inline JavaScript in this document is algorithm reference and fallback guidance
 only. Do not reimplement an inline extractor when the corresponding file is
 available. Every extractor result must contain `extractor`, `status`, `data`,
@@ -209,7 +209,7 @@ and `limitations`.
 
 ### Static and Dynamic Interaction Analysis
 
-`extractors/interactive-states.js` performs static analysis of interactive
+`scripts/interactive-states.js` performs static analysis of interactive
 elements, focusability, ARIA state, transitions, and likely event entry points.
 It does not trigger actions. Browser automation may separately validate `hover`,
 `focus`, `scroll`, menu opening, and tab switching using a safe action allowlist.
@@ -344,7 +344,7 @@ extractor_result:
   limitations: []
 ```
 
-Complex extractor scripts should live in the skill's `extractors/` or
+Complex extractor scripts should live in the skill's `scripts/` or
 `references/` directory and be called by the workflow.
 
 ### Advanced Shared Context

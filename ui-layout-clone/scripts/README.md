@@ -1,4 +1,4 @@
-# Extractors
+# Scripts（Extractors）
 
 该目录包含 `ui-layout-clone` 的标准提取实现。Skill 正文中的内联脚本只作为算法说明和降级参考；运行环境具备文件访问能力时，优先调用这里的脚本。
 
